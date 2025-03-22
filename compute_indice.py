@@ -22,7 +22,7 @@ __status__ = "Development"
 
 from scipy import signal, fftpack
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 
@@ -503,20 +503,20 @@ def remove_noiseInSpectro(spectro, histo_relative_size=8, window_smoothing=5, N=
     new_spec = new_spec.clip(min=low_value) # replace negative values by value close to zero
 
     #Figure
-    if plot:
-        colormap="jet"
-        fig = plt.figure()
-        a = fig.add_subplot(1,2,1)
-        if dB:
-            plt.imshow(new_spec, origin="lower", aspect="auto", cmap=colormap, interpolation="none")
-        else:
-            plt.imshow(20*np.log10(new_spec), origin="lower", aspect="auto", cmap=colormap, interpolation="none")
-        a = fig.add_subplot(1,2,2)
-        if dB:
-            plt.imshow(new_spec, origin="lower", aspect="auto", cmap=colormap, interpolation="none")
-        else:
-            plt.imshow(20*np.log10(spectro), origin="lower", aspect="auto", cmap=colormap, interpolation="none")
-        plt.show()
+    # if plot:
+    #     colormap="jet"
+    #     fig = plt.figure()
+    #     a = fig.add_subplot(1,2,1)
+    #     if dB:
+    #         plt.imshow(new_spec, origin="lower", aspect="auto", cmap=colormap, interpolation="none")
+    #     else:
+    #         plt.imshow(20*np.log10(new_spec), origin="lower", aspect="auto", cmap=colormap, interpolation="none")
+    #     a = fig.add_subplot(1,2,2)
+    #     if dB:
+    #         plt.imshow(new_spec, origin="lower", aspect="auto", cmap=colormap, interpolation="none")
+    #     else:
+    #         plt.imshow(20*np.log10(spectro), origin="lower", aspect="auto", cmap=colormap, interpolation="none")
+    #     plt.show()
 
 
 
