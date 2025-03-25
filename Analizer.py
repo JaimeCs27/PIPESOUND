@@ -4,6 +4,10 @@ import yaml
 from os import path, fsync
 import datetime
 
+INDICES = 'Indices'
+ARG = 'arguments'
+SPECTR = 'spectro'
+
 class Analizer:
     def __init__(self, config_file):
         with open(config_file, 'r') as stream:
@@ -21,9 +25,25 @@ class Analizer:
         for index in indices:
             if index == 'Acoustic_Complexity_Index':
                 self.Acoustic_complexity_index(file)
+            if index == 'Bio_acoustic_Index':
+                self.Bioacustic_index(file)
 
     '''
-    Esta función se encarga de obtener los atributos/parámetros de la configuración y realiza el análsis
+    Esta función se encarga de obtener los atributos/parámetros de la configuración y realiza el análisis bioacustico
+    Entradas:
+        - File: Archivo de audio
+    Salidas:
+        No tiene
+    '''
+    def Bioacustic_index(self, file):
+        index = 'Bio_acoustic_Index'
+        spectro, frequencies = compute_spectrogram(file, **self.config[INDICES][index][SPECTR])
+        methodToCall = globals().get(self.config[INDICES][index]['function'])
+        main_value = methodToCall(spectro, frequencies, **self.config[INDICES][index][ARG])
+        file.indices[index] = Index(index, main_value=main_value)
+
+    '''
+    Esta función se encarga de obtener los atributos/parámetros de la configuración y realiza el análisis
     Entradas:
         - File: Archivo de audio
     Salidas:
@@ -31,9 +51,9 @@ class Analizer:
     '''
     def Acoustic_complexity_index(self, file):
         index = 'Acoustic_Complexity_Index'
-        spectro, _ = compute_spectrogram(file, **self.config['Indices'][index]['spectro'])
-        methodToCall = globals().get(self.config['Indices'][index]['function'])
-        j_bin = int(self.config['Indices'][index]['arguments']["j_bin"] * file.sr / self.config['Indices'][index]['spectro']['windowHop'])
+        spectro, _ = compute_spectrogram(file, **self.config[INDICES][index][SPECTR])
+        methodToCall = globals().get(self.config[INDICES][index]['function'])
+        j_bin = int(self.config[INDICES][index][ARG]["j_bin"] * file.sr / self.config[INDICES][index][SPECTR]['windowHop'])
         main_value, temporal_values = methodToCall(spectro, j_bin)
         file.indices[index] = Index(index, temporal_values=temporal_values, main_value=main_value)
     
@@ -61,6 +81,7 @@ class Analizer:
         for value in values:
             result += str(value) + ','
         result += '\n'
+        print(result)
         # with open(csv_path, "a", newline="") as f:
         #     f.write(result)
         #     f.flush()  # Fuerza la escritura en disco

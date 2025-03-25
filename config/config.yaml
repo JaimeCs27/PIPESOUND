@@ -42,7 +42,7 @@ Indices:
       windowHop: 256
       scale_audio: True
       square: False
-      windowType: hanning
+      windowType: hann
       centered: False
       normalized: False
     arguments:
@@ -70,7 +70,7 @@ Indices:
       windowHop: 256
       scale_audio: True
       square: False
-      windowType: hanning
+      windowType: hann
       centered: False
       normalized: False
 
@@ -81,7 +81,7 @@ Indices:
       windowHop: 256
       scale_audio: True
       square: False
-      windowType: hanning
+      windowType: hann
       centered: False
       normalized: False
 
@@ -152,7 +152,7 @@ Indices:
       windowHop: 256
       scale_audio: True
       square: False
-      windowType: hanning
+      windowType: hann
       centered: False
       normalized: False
     arguments:
@@ -170,6 +170,6 @@ Indices:
       windowHop: 256
       scale_audio: True
       square: False
-      windowType: hanning
+      windowType: hann
       centered: False
       normalized: False
