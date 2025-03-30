@@ -25,8 +25,10 @@ class Analizer:
         for index in indices:
             if index == 'Acoustic_Complexity_Index':
                 self.Acoustic_complexity_index(file)
-            if index == 'Bio_acoustic_Index':
+            elif index == 'Bio_acoustic_Index':
                 self.Bioacustic_index(file)
+            elif index == 'Acoustic_Evenness_Index':
+                self.Acoustic_Evenness_Index(file)
 
     '''
     Esta función se encarga de obtener los atributos/parámetros de la configuración y realiza el análisis bioacustico
@@ -57,6 +59,24 @@ class Analizer:
         main_value, temporal_values = methodToCall(spectro, j_bin)
         file.indices[index] = Index(index, temporal_values=temporal_values, main_value=main_value)
     
+    '''
+    Esta función se encarga de obtener los atributos/parámetros de la configuración de y realiza el análisis
+    Entradas:
+        - File: Archivo de audio
+    Salidas:
+        No tiene
+    '''
+    def Acoustic_Evenness_Index(self, file):
+        index = 'Acoustic_Evenness_Index'
+        methodToCall = globals().get(self.config[INDICES][index]['function'])
+        freq_band_Hz = self.config[INDICES][index][ARG]['max_freq'] / self.config[INDICES][index][ARG]['freq_step']
+        windowLength = int(file.sr / freq_band_Hz)
+        spectro,_ = compute_spectrogram(file, **self.config[INDICES][index][SPECTR] )
+        main_value = methodToCall(spectro, freq_band_Hz, **self.config[INDICES][index][ARG])
+        file.indices[index] = Index(index, main_value=main_value)
+
+
+
     '''
     Esta función se encarga de escribir en el archivo csv los datos recopilados del análisis
     Entradas:
