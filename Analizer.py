@@ -71,7 +71,16 @@ class Analizer:
         methodToCall = globals().get(self.config[INDICES][index]['function'])
         freq_band_Hz = self.config[INDICES][index][ARG]['max_freq'] / self.config[INDICES][index][ARG]['freq_step']
         windowLength = int(file.sr / freq_band_Hz)
-        spectro,_ = compute_spectrogram(file, **self.config[INDICES][index][SPECTR] )
+        spectro, _ = compute_spectrogram(
+            file,
+            windowLength=windowLength,
+            windowHop=windowLength,
+            scale_audio=True,
+            square=False,
+            windowType='hann',
+            centered=False,
+            normalized=False
+        )
         main_value = methodToCall(spectro, freq_band_Hz, **self.config[INDICES][index][ARG])
         file.indices[index] = Index(index, main_value=main_value)
 
