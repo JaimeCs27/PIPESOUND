@@ -27,6 +27,8 @@ class Analizer:
                 self.Acoustic_complexity_index(file)
             elif index == 'Bio_acoustic_Index':
                 self.Bioacustic_index(file)
+            elif index == 'Acoustic_Diversity_Index':
+                self.Acoustic_Diversity_Index(file)
             elif index == 'Acoustic_Evenness_Index':
                 self.Acoustic_Evenness_Index(file)
 
@@ -59,6 +61,25 @@ class Analizer:
         main_value, temporal_values = methodToCall(spectro, j_bin)
         file.indices[index] = Index(index, temporal_values=temporal_values, main_value=main_value)
     
+
+    '''
+    Esta función se encarga de obtener los atributos/parámetros de la configuración y realiza el analisis para el indice: Acoustic Diversity
+    Entradas:
+        - File: Archivo de audio
+    Salidas:
+        No tiene
+    '''
+    
+    def Acoustic_Diversity_Index(self, file):
+        index = 'Acoustic_Diversity_Index'
+        methodToCall = globals().get(self.config[INDICES][index]['function'])
+        freq_band_Hz = self.config[INDICES][index][ARG]['max_freq'] / self.config[INDICES][index][ARG]['freq_step']
+        windowLength = int(file.sr / freq_band_Hz)
+        spectro, _ = compute_spectrogram(file, windowLength=windowLength, windowHop=windowLength, scale_audio=True, square=False, windowType='hann', centered=False, normalized=False)
+        main_value = methodToCall(spectro, freq_band_Hz, **self.config[INDICES][index]['arguments'])
+        file.indices[index] = Index(index, main_value=main_value)
+
+
     '''
     Esta función se encarga de obtener los atributos/parámetros de la configuración de y realiza el análisis
     Entradas:
