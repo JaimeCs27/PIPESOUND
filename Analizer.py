@@ -31,6 +31,21 @@ class Analizer:
                 self.Acoustic_Diversity_Index(file)
             elif index == 'Acoustic_Evenness_Index':
                 self.Acoustic_Evenness_Index(file)
+            elif index == 'Spectral_Entropy':
+                self.Spectral_Entropy(file)
+    '''
+    Esta funcion se encarga de obtener los atributos/parametros de la configuracion y realida el analisis Spectral de entropia
+    Entradas:
+        - File: Archivo de audio
+    Salidas:
+        No tiene
+    '''
+    def Spectral_Entropy(self, file):
+        index = 'Spectral_Entropy'
+        spectro, _ = compute_spectrogram(file, **self.config[INDICES][index][SPECTR])
+        methodToCall = globals.get(self.config[INDICES][index]['function'])
+        main_value = methodToCall(spectro)
+        file.indices[index] = Index(index, main_value=main_value)
 
     '''
     Esta función se encarga de obtener los atributos/parámetros de la configuración y realiza el análisis bioacustico
