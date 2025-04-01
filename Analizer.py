@@ -33,6 +33,8 @@ class Analizer:
                 self.Acoustic_Evenness_Index(file)
             elif index == 'Spectral_Entropy':
                 self.Spectral_Entropy(file)
+            elif index == 'Normalized_Difference_Sound_Index':
+                self.Normalized_Difference_Sound_Index(file)
     '''
     Esta funcion se encarga de obtener los atributos/parametros de la configuracion y realida el analisis Spectral de entropia
     Entradas:
@@ -46,6 +48,7 @@ class Analizer:
         methodToCall = globals.get(self.config[INDICES][index]['function'])
         main_value = methodToCall(spectro)
         file.indices[index] = Index(index, main_value=main_value)
+           
 
     '''
     Esta función se encarga de obtener los atributos/parámetros de la configuración y realiza el análisis bioacustico
@@ -120,7 +123,18 @@ class Analizer:
         main_value = methodToCall(spectro, freq_band_Hz, **self.config[INDICES][index][ARG])
         file.indices[index] = Index(index, main_value=main_value)
 
-
+    '''
+    Esta función se encarga de obtener los atributos/parámetros de la configuración y realiza el análisis para el índice: Normalized Difference Sound Index (NDSI)
+    Entradas:
+        - File: Archivo de audio
+    Salidas:
+        No tiene
+    '''
+    def Normalized_Difference_Sound_Index(self, file):
+        index = 'Normalized_Difference_Sound_Index'
+        methodToCall = globals().get(self.config[INDICES][index]['function'])
+        main_value = methodToCall(file, **self.config[INDICES][index]['arguments'])
+        file.indices[index] = Index(index, main_value=main_value)
 
     '''
     Esta función se encarga de escribir en el archivo csv los datos recopilados del análisis
@@ -139,13 +153,16 @@ class Analizer:
         format_date = date.strftime("%Y-%m-%d")
         format_hour = date.strftime('%H:%M:%S')
         values = [project_name,site, format_date,format_hour, file.file_name]
+        keys = ['project_name', 'site', 'date', 'time', 'filename']
         for index, Index in file.indices.items():
             for key, value in Index.__dict__.items():
                 if key != 'name':
+                    keys.append(index + '__' + key)
                     values.append(float(value))
         for value in values:
             result += str(value) + ','
         result += '\n'
+        print(keys)
         print(result)
         # with open(csv_path, "a", newline="") as f:
         #     f.write(result)
