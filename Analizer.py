@@ -37,6 +37,8 @@ class Analizer:
                 self.Normalized_Difference_Sound_Index(file)
             elif index == 'NB_peaks':
                 self.NB_peaks(file)
+            elif index == 'Temporal_Entropy':
+                self.Temporal_Entropy(file)
     '''
     Esta funcion se encarga de obtener los atributos/parametros de la configuracion y realida el analisis Spectral de entropia
     Entradas:
@@ -151,6 +153,20 @@ class Analizer:
         methodToCall = globals().get(self.config[INDICES][index]['function'])
         main_value = methodToCall(spectro, frequencies, **self.config[INDICES][index][ARG])
         file.indices[index] = Index(index, main_value=main_value)
+    
+    '''
+    Esta función se encarga de obtener los atributos/parámetros de la configuración y realiza el análisis para el índice: Temporal Entropy
+    Entradas:
+        - File: Archivo de audio
+    Salidas:
+        No tiene
+    '''
+    def Temporal_Entropy(self, file):
+        index = 'Temporal_Entropy'
+        methodToCall = globals().get(self.config[INDICES][index]['function'])
+        main_value = methodToCall(file, **self.config[INDICES][index][ARG])
+        file.indices[index] = Index(index, main_value=main_value)
+
     '''
     Esta función se encarga de escribir en el archivo csv los datos recopilados del análisis
     Entradas:
@@ -161,7 +177,7 @@ class Analizer:
     Salidas
         No tiene
     '''
-    
+
     def write_to_csv(self, file, project_name, site, csv_path):
         result = ''
         date = datetime.datetime.fromtimestamp(path.getctime(file.file_path))

@@ -42,7 +42,7 @@ def test():
     #     h = -h
     #     h[(N - 1) / 2] += 1
     #     file.process_filtering(np.convolve(file.sig_float, h))
-    analizer.process_audio_file(file, ['Acoustic_Complexity_Index', 'Bio_acoustic_Index', 'Acoustic_Diversity_Index', 'Acoustic_Evenness_Index', 'Normalized_Difference_Sound_Index', 'Spectral_Entropy', 'NB_peaks'])
+    analizer.process_audio_file(file, ['Acoustic_Complexity_Index', 'Bio_acoustic_Index', 'Acoustic_Diversity_Index', 'Acoustic_Evenness_Index', 'Normalized_Difference_Sound_Index', 'Spectral_Entropy', 'NB_peaks', 'Temporal_Entropy'])
     analizer.write_to_csv(file, "project a", 'site 1', "prueba.csv")
 
 test()
