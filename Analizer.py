@@ -45,7 +45,7 @@ class Analizer:
     def Spectral_Entropy(self, file):
         index = 'Spectral_Entropy'
         spectro, _ = compute_spectrogram(file, **self.config[INDICES][index][SPECTR])
-        methodToCall = globals.get(self.config[INDICES][index]['function'])
+        methodToCall = globals().get(self.config[INDICES][index]['function'])
         main_value = methodToCall(spectro)
         file.indices[index] = Index(index, main_value=main_value)
            

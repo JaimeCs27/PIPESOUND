@@ -9,7 +9,7 @@
 
 
 #Establecer el directorio de trabajo y revisar directorio de trabajo
-setwd("D:/Universidad/Semestre VII/Proyecto/PIPESOUND/Test_audios")
+setwd("C:/Users/sebas/OneDrive/TEC/Semestre 1 2025/Proyecto/PIPESOUND/Test_audios")
 getwd()
 
 #Instalar paquetes necesarios (agregar aqui los que vayan necesitando)
@@ -73,12 +73,14 @@ p1
 #Carpeta por carpeta con nombres de la ruta en el directorio
 x = 1
 pre = list()
-setwd(p1[x])
-pre[[x]] = soundindex10()
-  print(p1[x])  
+for (i in p1) {
+  print(p1[x])
+  setwd(p1[x])
+  pre[[x]] = soundindex10()
   pre[[x]]["Sitio"] <- i 
   x = x+1
-  setwd("/Prueba")  
+  setwd("C:/Users/sebas/OneDrive/TEC/Semestre 1 2025/Proyecto/Prueba")
+}  
 
 #Vista de las dataframe realizadas
 View(pre[[1]])
