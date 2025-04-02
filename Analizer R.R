@@ -9,27 +9,27 @@
 
 
 #Establecer el directorio de trabajo y revisar directorio de trabajo
-setwd("C:/Users/sebas/OneDrive/TEC/Semestre 1 2025/Proyecto/PIPESOUND/Test_audios")
+setwd("C:/Users/sebas/OneDrive/TEC/Semestre 1 2025/Proyecto")
 getwd()
 
 #Instalar paquetes necesarios (agregar aqui los que vayan necesitando)
-install.packages("devtools")
-install.packages("Rcpp")
-install.packages("seewave")
-install.packages("testthat")
-install.packages("vegan")
-install.packages("rlang")
-install.packages("dplyr")
-install.packages("bioacoustics")
-install.packages("gridExtra")
-install.packages("grid")
-install.packages("ggplot2")
-install.packages("lattice")
-install.packages("tuneR")
-install.packages("tidyr", dependencies = T)    # Datos ordenados. lo agregue para poder separae la fecha de la hora
-install.packages("reshape")
-install.packages("ggpubr")
-install.packages("wesanderson")
+#install.packages("devtools")
+#install.packages("Rcpp")
+#install.packages("seewave")
+#install.packages("testthat")
+#install.packages("vegan")
+#install.packages("rlang")
+#install.packages("dplyr")
+#install.packages("bioacoustics")
+#install.packages("gridExtra")
+#install.packages("grid")
+#install.packages("ggplot2")
+#install.packages("lattice")
+#install.packages("tuneR")
+#install.packages("tidyr", dependencies = T)    # Datos ordenados. lo agregue para poder separae la fecha de la hora
+#install.packages("reshape")
+#install.packages("ggpubr")
+#install.packages("wesanderson")
 
 #Llamar los paquetes necesarios (agregar aqui los que vayan necesitando)
 library(devtools)
@@ -59,7 +59,7 @@ library(Sinax)
 ############################### Analisis de indices ###########################################
 
 # Crear un vector de la lista de las rutas de las carpetas en el directorio de manera recursiva
-setwd("C:/Users/sebas/OneDrive/TEC/Semestre 1 2025/Proyecto/PIPESOUND/Test_audios")
+setwd("C:/Users/sebas/OneDrive/TEC/Semestre 1 2025/Proyecto")
 getwd()
 l1 <- list.dirs(path = ".", recursive = F, full.names = T)
 l1
@@ -70,25 +70,30 @@ getwd()
 p1 <- list.files()
 p1
 
-#Carpeta por carpeta con nombres de la ruta en el directorio
+# Directorio base donde están los archivos wav
+base_dir <- "C:/Users/sebas/OneDrive/TEC/Semestre 1 2025/Proyecto/PIPESOUND/Test_audios"
+
+# Ejecutar soundindex1() solo una vez
+sound_result <- soundindex1()  # Esto hace el procesamiento de todos los archivos
+
+# Crear un vector con los nombres de los archivos
+file_names <- p1
+
+# Asignar el nombre del archivo a la columna "Sitio" en cada fila
 x = 1
-pre = list()
-for (i in p1) {
-  print(p1[x])
-  setwd(p1[x])
-  pre[[x]] = soundindex10()
-  pre[[x]]["Sitio"] <- i 
-  x = x+1
-  setwd("C:/Users/sebas/OneDrive/TEC/Semestre 1 2025/Proyecto/Prueba")
-}  
+for (i in file_names) {
+  sound_result$Sitio <- i  # Asigna el nombre del archivo a la columna "Sitio"
+  pre[[x]] <- sound_result  # Almacena el resultado en la lista
+  x = x + 1
+}
 
-#Vista de las dataframe realizadas
-View(pre[[1]])
+# Unir todas las dataframes en una sola
+pres <- do.call(rbind, pre)
 
-
-#Unir las dataframe en una sola ** Las dataframe deben tener los mismos nombres en columnas
-pres <- rbind(pre[[1]], pre[[2]], pre[[3]], pre[[4]], pre[[5]])
+# Vista de la dataframe combinada
 View(pres)
 
-#Crear el csv con todos los datos
-write.csv(pres, file = "prueba.csv")
+# Crear el csv con todos los datos
+write.csv(pres, file = "C:/Users/sebas/OneDrive/TEC/Semestre 1 2025/Proyecto/Prueba/prueba.csv")
+
+
