@@ -35,8 +35,8 @@ class Analizer:
                 self.Spectral_Entropy(file)
             elif index == 'Normalized_Difference_Sound_Index':
                 self.Normalized_Difference_Sound_Index(file)
-            elif index == 'Number_of_peaks':
-                self.Number_of_peaks(file)
+            elif index == 'NB_peaks':
+                self.NB_peaks(file)
     '''
     Esta funcion se encarga de obtener los atributos/parametros de la configuracion y realida el analisis Spectral de entropia
     Entradas:
@@ -145,8 +145,8 @@ class Analizer:
     Salidas:
         No tiene
     '''
-    def Number_of_peaks(self, file):
-        index = 'Number_of_peaks'
+    def NB_peaks(self, file):
+        index = 'NB_peaks'
         spectro, frequencies = compute_spectrogram(file, **self.config[INDICES][index][SPECTR])
         methodToCall = globals().get(self.config[INDICES][index]['function'])
         main_value = methodToCall(spectro, frequencies, **self.config[INDICES][index][ARG])
