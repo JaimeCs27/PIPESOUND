@@ -35,6 +35,8 @@ class Analizer:
                 self.Spectral_Entropy(file)
             elif index == 'Normalized_Difference_Sound_Index':
                 self.Normalized_Difference_Sound_Index(file)
+            elif index == 'Number_of_peaks':
+                self.Number_of_peaks(file)
     '''
     Esta funcion se encarga de obtener los atributos/parametros de la configuracion y realida el analisis Spectral de entropia
     Entradas:
@@ -136,6 +138,19 @@ class Analizer:
         main_value = methodToCall(file, **self.config[INDICES][index]['arguments'])
         file.indices[index] = Index(index, main_value=main_value)
 
+    '''
+    Esta función se encarga de obtener los atributos/parámetros de la configuración y realiza el análisis para el índice: Normalized Difference Sound Index (NDSI)
+    Entradas:
+        - File: Archivo de audio
+    Salidas:
+        No tiene
+    '''
+    def Number_of_peaks(self, file):
+        index = 'Number_of_peaks'
+        spectro, frequencies = compute_spectrogram(file, **self.config[INDICES][index][SPECTR])
+        methodToCall = globals().get(self.config[INDICES][index]['function'])
+        main_value = methodToCall(spectro, frequencies, **self.config[INDICES][index][ARG])
+        file.indices[index] = Index(index, main_value=main_value)
     '''
     Esta función se encarga de escribir en el archivo csv los datos recopilados del análisis
     Entradas:
