@@ -1,48 +1,23 @@
 from Analizer import Analizer
 from acoustic_index import *
-import yaml
 from scipy import signal
+from os import walk, path
+from datetime import datetime
 
 def test():
-
     analizer = Analizer('config/config.yaml')
-    
-    file = AudioFile('Test_audios/1.wav', True)
-    
-    ## PARA FILTRAR EL AUDIO
-    # yml_file = 'config/config.yaml'
-    # with open(yml_file, 'r') as stream:
-    #     data_config = yaml.load(stream, Loader=yaml.FullLoader)
-    # if data_config['Filtering']['type'] == 'butterworth':
-    #     print('- Pre-processing - High-Pass Filtering:', data_config['Filtering'])
-    #     freq_filter = data_config['Filtering']['frequency']
-    #     Wn = freq_filter/float(file.niquist)
-    #     order = data_config['Filtering']['order']
-    #     [b,a] = signal.butter(order, Wn, btype='highpass')
-    #     # to plot the frequency response
-    #     #w, h = signal.freqz(b, a, worN=2000)
-    #     #plt.plot((file.sr * 0.5 / np.pi) * w, abs(h))
-    #     #plt.show()
-    #     file.process_filtering(signal.filtfilt(b, a, file.sig_float))
-    # elif data_config['Filtering']['type'] == 'windowed_sinc':
-    #     print('- Pre-processing - High-Pass Filtering:', data_config['Filtering'])
-    #     freq_filter = data_config['Filtering']['frequency']
-    #     fc = freq_filter / float(file.sr)
-    #     roll_off = data_config['Filtering']['roll_off']
-    #     b = roll_off / float(file.sr)
-    #     N = int(np.ceil((4 / b)))
-    #     if not N % 2: N += 1  # Make sure that N is odd.
-    #     n = np.arange(N)
-    #     # Compute a low-pass filter.
-    #     h = np.sinc(2 * fc * (n - (N - 1) / 2.))
-    #     w = np.blackman(N)
-    #     h = h * w
-    #     h = h / np.sum(h)
-    #     # Create a high-pass filter from the low-pass filter through spectral inversion.
-    #     h = -h
-    #     h[(N - 1) / 2] += 1
-    #     file.process_filtering(np.convolve(file.sig_float, h))
-    analizer.process_audio_file(file, ['Acoustic_Complexity_Index', 'Bio_acoustic_Index', 'Acoustic_Diversity_Index', 'Acoustic_Evenness_Index', 'Normalized_Difference_Sound_Index', 'Spectral_Entropy', 'NB_peaks', 'Temporal_Entropy'])
-    analizer.write_to_csv(file, "project a", 'site 1', "prueba.csv")
+    csv_path = "prueba.csv"
+    indices =['Acoustic_Complexity_Index', 'Bio_acoustic_Index', 'Acoustic_Diversity_Index', 'Acoustic_Evenness_Index', 'Normalized_Difference_Sound_Index', 'Spectral_Entropy', 'NB_peaks', 'Temporal_Entropy']
+    analizer.set_headers(indices, csv_path)
+    analize('Test_audios', analizer, indices, csv_path)
+
+def analize(dir, analizer, indices, csv_path):
+    for root, _, files in walk(dir):  # root = directorio actual, files = archivos en root
+        for filename in files:
+            if filename.endswith('.wav'):
+                file_path = path.join(root, filename)  # Usar os.path.join correctamente
+                file = AudioFile(file_path, True)
+                analizer.process_audio_file(file, indices)
+                analizer.write_to_csv(file, "project a", path.basename(root), csv_path)  # Corregir os.path.basename
 
 test()

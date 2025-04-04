@@ -98,7 +98,7 @@ class Analizer:
         freq_band_Hz = self.config[INDICES][index][ARG]['max_freq'] / self.config[INDICES][index][ARG]['freq_step']
         windowLength = int(file.sr / freq_band_Hz)
         spectro, _ = compute_spectrogram(file, windowLength=windowLength, windowHop=windowLength, scale_audio=True, square=False, windowType='hann', centered=False, normalized=False)
-        main_value = methodToCall(spectro, freq_band_Hz, **self.config[INDICES][index]['arguments'])
+        main_value = methodToCall(spectro, freq_band_Hz, **self.config[INDICES][index][ARG])
         file.indices[index] = Index(index, main_value=main_value)
 
 
@@ -188,15 +188,32 @@ class Analizer:
         for index, Index in file.indices.items():
             for key, value in Index.__dict__.items():
                 if key != 'name':
-                    keys.append(index + '__' + key)
+                    keys.append(index + "_" + key)
                     values.append(float(value))
         for value in values:
             result += str(value) + ','
         result += '\n'
-        print(keys)
-        print(result)
-        # with open(csv_path, "a", newline="") as f:
-        #     f.write(result)
-        #     f.flush()  # Fuerza la escritura en disco
-        #     fsync(f.fileno())  # Asegura que los datos se guarden físicamente
+        with open(csv_path, "a", newline="") as f:
+            f.write(result)
+            f.flush()  # Fuerza la escritura en disco
+            fsync(f.fileno())  # Asegura que los datos se guarden físicamente
+
+
+    def set_headers(self, indices, csv_path):
+        if not path.exists(csv_path):
+            keys = 'project_name, site, date, time, filename,'
+            for index in indices:
+                keys += (index + '_main_value,')
+                if index == 'Acoustic_Complexity_Index':
+                    keys += (index + "_min,")
+                    keys += (index + "_max,")
+                    keys += (index + "_mean,")
+                    keys += (index + "_median,")
+                    keys += (index + "_std,")
+                    keys += (index + "_var,")
+            keys += '\n'
+            with open(csv_path, "w", newline="") as f:
+                f.write(keys)
+                f.flush()  # Fuerza la escritura en disco
+                fsync(f.fileno())  # Asegura que los datos se guarden físicamente
         
