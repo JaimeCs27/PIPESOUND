@@ -12,7 +12,7 @@ def test():
     csv_path = "prueba.csv"
     indices = ['Acoustic_Complexity_Index', 'Bio_acoustic_Index', 'Acoustic_Diversity_Index',
                'Acoustic_Evenness_Index', 'Normalized_Difference_Sound_Index', 'Spectral_Entropy',
-               'NB_peaks', 'Temporal_Entropy']
+               'NB_peaks', 'Temporal_Entropy', 'Wave_Signal_To_Noise_Ratio']
     analizer.set_headers(indices, csv_path)
 
     last_file = load_last_processed_file()

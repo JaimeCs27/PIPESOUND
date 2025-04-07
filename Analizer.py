@@ -168,6 +168,22 @@ class Analizer:
         file.indices[index] = Index(index, main_value=main_value)
 
     '''
+    Esta función se encarga de obtener los atributos/parámetros de la configuración y realiza el análisis para el índice: Wave Signal To Noise Ratio (WSNR)
+    Entradas:
+        - File: Archivo de audio
+    Salidas:
+        No tiene
+    '''
+    def Wave_Signal_To_Noise_Ratio(self, file):
+        index = 'Wave_Signal_To_Noise_Ratio'
+        methodToCall = globals().get(self.config[INDICES][index]['function'])
+        main_value = methodToCall(file, **self.config[INDICES][index][ARG])
+        file.indices[index] = Index(index, main_value=main_value)
+
+
+
+
+    '''
     Esta función se encarga de escribir en el archivo csv los datos recopilados del análisis
     Entradas:
         - file: Archivo de audio
@@ -177,7 +193,6 @@ class Analizer:
     Salidas
         No tiene
     '''
-
     def write_to_csv(self, file, project_name, site, csv_path):
         result = ''
         date = datetime.datetime.fromtimestamp(path.getctime(file.file_path))
