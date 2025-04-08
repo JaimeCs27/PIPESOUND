@@ -1,5 +1,12 @@
 from customtkinter import *
 from PIL import Image
+import sys
+import os
+# Agrega la carpeta superior al path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from Analizer import *
+from progress import load_last_processed_file, save_last_processed_file, reset_progress, PROGRESS_FILE, analize
 
 app = CTk()
 app.geometry("1280x720")
@@ -13,7 +20,7 @@ btn.place(x=51, y=19)
 
 #Boton Confirmar
 img2 = Image.open("icons/Run.png")
-btn2 = CTkButton(app, text="Correr", font=("Inter", 36), fg_color="#63C132", hover_color="#63C132", command=lambda: print("Botón presionado"), width=448, height=49, image=CTkImage(img2))
+btn2 = CTkButton(app, text="Correr", font=("Inter", 36), fg_color="#63C132", hover_color="#63C132", command=lambda: run_indices(), width=448, height=49, image=CTkImage(img2))
 btn2.place(x=79, y=627)
 
 #Boton Cancelar
@@ -72,7 +79,7 @@ checkbox_list = []
 
 # Checkbox "Seleccionar Todos"
 def toggle_all():
-    for cb in checkbox_list:
+    for cb, _ in checkbox_list:
         cb.select() if select_all_checkbox.get() == 1 else cb.deselect()
 
 select_all_checkbox = CTkCheckBox(app,
@@ -91,13 +98,17 @@ select_all_checkbox.place(x=67, y=75)
 panel_scroll = CTkScrollableFrame(app, width=470, height=500, fg_color="#272B2B", border_color="#272B2B", border_width=0)
 panel_scroll.place(x=50, y=100)
 
+INDICES = ['Acoustic_Complexity_Index', 'Acoustic_Diversity_Index',
+               'Acoustic_Evenness_Index', 'Bio_acoustic_Index', 'Normalized_Difference_Sound_Index', 'Spectral_Entropy',
+               'NB_peaks', 'Temporal_Entropy', 'Wave_Signal_To_Noise_Ratio']
+
 # Crear múltiples entradas
-for i in range(10):
+for i in range(len(INDICES)):
     container = CTkFrame(panel_scroll, fg_color="#9EE37D", width=451, height=49, corner_radius=7)
     container.pack(pady=5)
 
     label = CTkLabel(container,
-                     text=f"Acoustic Index {i+1}",
+                     text=INDICES[i],
                      font=("Inter", 26),
                      text_color="#525656",
                      anchor="w",
@@ -118,7 +129,26 @@ for i in range(10):
                            height=28)
     checkbox.place(x=410, y=10)
 
-    checkbox_list.append(checkbox)  # Guardar referencia a cada checkbox
+    checkbox_list.append((checkbox, i))  # Guardar referencia a cada checkbox
 
+
+def run_indices():
+    indices = []
+    for cb, i in checkbox_list:
+        if cb.get() == 1:
+            indices.append(INDICES[i])
+    analizer = Analizer('../config/config.yaml')
+    csv_path = "prueba.csv"
+    last_file = load_last_processed_file()
+    analizer.set_headers(indices, csv_path)
+    if last_file:
+        choice = input(f"El programa fue interrumpido repentinamente, se encontró progreso previo en '{last_file}'. ¿Desea continuar desde allí? (s/n): ")
+        if choice.lower() != 's':
+            reset_progress()
+            last_file = None
+
+    analize('../Test_audios', analizer, indices, csv_path, last_file)
+   
+    
 
 app.mainloop()
