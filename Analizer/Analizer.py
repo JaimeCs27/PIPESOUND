@@ -1,5 +1,5 @@
-from compute_indice import *
-from acoustic_index import *
+from Analizer.compute_indice import *
+from Analizer.acoustic_index import *
 import yaml
 from os import path, fsync
 import datetime

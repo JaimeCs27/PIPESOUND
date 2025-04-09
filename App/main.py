@@ -1,18 +1,24 @@
 from customtkinter import *
 from PIL import Image
 import sys
-import os
+from os import path, walk
 import threading
 # Agrega la carpeta superior al path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
-from Analizer import *
-from progress import load_last_processed_file, save_last_processed_file, reset_progress, PROGRESS_FILE, analize
+from Analizer.Analizer import *
+from Analizer.progress import load_last_processed_file, save_last_processed_file, reset_progress, PROGRESS_FILE, analize
 
 STOP = False
 
 app = CTk()
-app.geometry("1280x720")
+app_width = 1280
+app_height = 720
+x = (app.winfo_screenwidth() // 2) - (app_width // 2)
+y = (app.winfo_screenheight() // 2) - (app_height // 2)
+
+# Establecer la geometría del pop-up en el centro de la pantalla
+app.geometry(f"{app_width}x{app_height}+{x}+{y}")
 #Fondo del app
 app.configure(fg_color="#272B2B")
 
@@ -50,32 +56,13 @@ label5 = CTkLabel(app, text="Site: Mi Site", text_color="#FFFFFF", fg_color="tra
 label5.place(x=561, y=187)
 
 #Label Archivos
-label6 = CTkLabel(app, text="Archivos Analizados: 66 de 368", text_color="#FFFFFF", fg_color="transparent", font=("Inter", 32), anchor="w", width=638, height=154)
+label6 = CTkLabel(app, text="Archivos Analizados:", text_color="#FFFFFF", fg_color="transparent", font=("Inter", 32), anchor="w", width=638, height=154)
 label6.place(x=554, y=283)
 
 #Slider Progreso
 progressbar = CTkProgressBar(app, fg_color="#ACBAB6", progress_color="#63C132", width=582, height=14)
 progressbar.place(x=553, y=252)
-
-#ScrollBar
-# scrollbar = CTkScrollbar(app, orientation="vertical", fg_color="#D9D9D9", button_color="#272B2B", hover=False, width=8, height=536)
-# scrollbar.place(x=530, y=83)
-
-#Prueba Indice
-# btn4 = CTkButton(app, text="Acoustic Complexity Index", text_color="#525656", anchor="w", font=("Inter", 26), fg_color="#9EE37D", hover_color="#9EE37D", command=lambda: print("Botón presionado"), width=451, height=49)
-# btn4.place(x=70, y=105)
-# checkbox = CTkCheckBox(app,
-#                        text=None,
-#                        textvariable=None,
-#                        border_color="#525656",   # Color del borde
-#                        fg_color="#525656",       # Color de fondo cuando está marcado
-#                        hover_color="#525656",    # Color al hacer hover
-#                        bg_color="#9EE37D",       # Fondo detrás del checkbox (el botón verde)
-#                        checkmark_color="#9EE37D",# Color del "check" interno
-#                        corner_radius=15,         # Hace el checkbox redondo
-#                        width=29,
-#                        height=29)
-# checkbox.place(x=452, y=116)
+progressbar.set(0)
 
 # Lista para guardar checkboxes individuales
 checkbox_list = []
@@ -134,10 +121,57 @@ for i in range(len(INDICES)):
 
     checkbox_list.append((checkbox, i))  # Guardar referencia a cada checkbox
 
+def count_items(path_base):
+    contador = 0
+    for root, dirs, files in walk(path_base):
+        for file in files:
+            if file.lower().endswith('.wav'):
+                contador += 1
+    return contador
+
+
+def update_ui_label(current, total):
+    label6.configure(text=f"Archivos Analizados: {current} de {total}")
+    progressbar.set(current / total if total > 0 else 0)
+
+def show_popup(message):
+    # Crear la ventana emergente
+    popup = CTkToplevel(app)
+    popup.title("¡Análisis Completo!")
+    popup.configure(fg_color="#272B2B")
+
+    # Obtener las dimensiones de la ventana principal (app) para centrar el pop-up
+    popup_width = 300
+    popup_height = 200
+    x = (app.winfo_screenwidth() // 2) - (popup_width // 2)
+    y = (app.winfo_screenheight() // 2) - (popup_height // 2)
+
+    # Establecer la geometría del pop-up en el centro de la pantalla
+    popup.geometry(f"{popup_width}x{popup_height}+{x}+{y}")
+
+    # Crear el contenido del pop-up
+    label = CTkLabel(popup, text=message, text_color="#FFFFFF", font=("Inter", 20), anchor="center")
+    label.place(relx=0.5, rely=0.4, anchor="center")
+
+    # Botón para cerrar el pop-up
+    button = CTkButton(popup, text="Cerrar", font=("Inter", 16), command=popup.destroy)
+    button.place(relx=0.5, rely=0.6, anchor="center")
+
+    # Establecer el enfoque (focus) en el pop-up
+    popup.focus_set()  # Esto hará que el pop-up tenga el enfoque
+    popup.grab_set()   # Esto asegura que el pop-up recibe toda la interacción del usuario
+
+
+
 
 def run_indices():
     global STOP
     STOP = False
+
+    path_base = '../Test_audios'
+    total_files = count_items(path_base)
+    label6.configure(text=f"Archivos Analizados: 0 de {total_files}")
+    
 
     def analysis_thread():
         indices = []
@@ -154,15 +188,16 @@ def run_indices():
                 reset_progress()
                 last_file = None
 
-        analize('../Test_audios', analizer, indices, csv_path, last_file, stop_flag=lambda: STOP)
+        analize(path_base, analizer, indices, csv_path, last_file,
+            stop_flag=lambda: STOP,
+            update_callback=lambda current: app.after(0, update_ui_label, current, total_files))
+        app.after(0, show_popup, "¡El análisis ha terminado!")
 
     threading.Thread(target=analysis_thread, daemon=True).start()
    
 def stop():
     global STOP
     STOP = True
-    
-
     print("Se ha solicitado detener el análisis.")
 
 app.mainloop()
