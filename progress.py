@@ -22,7 +22,7 @@ def reset_progress():
     if path.exists(PROGRESS_FILE):
         os.remove(PROGRESS_FILE)
 
-def analize(base_dir, analizer, indices, csv_path, resume_from=None):
+def analize(base_dir, analizer, indices, csv_path, resume_from=None, stop_flag=None):
     resume = resume_from is not None
     should_skip = True
 
@@ -47,6 +47,9 @@ def analize(base_dir, analizer, indices, csv_path, resume_from=None):
         file = AudioFile(full_path, True)
 
         try:
+            if stop_flag and stop_flag():
+                print("Análisis detenido por el usuario.")
+                return
             analizer.process_audio_file(file, indices)
             analizer.write_to_csv(file, "project a", path.basename(path.dirname(full_path)), csv_path)
             save_last_processed_file(rel_path)

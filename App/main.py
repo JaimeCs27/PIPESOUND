@@ -2,11 +2,14 @@ from customtkinter import *
 from PIL import Image
 import sys
 import os
+import threading
 # Agrega la carpeta superior al path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from Analizer import *
 from progress import load_last_processed_file, save_last_processed_file, reset_progress, PROGRESS_FILE, analize
+
+STOP = False
 
 app = CTk()
 app.geometry("1280x720")
@@ -25,7 +28,7 @@ btn2.place(x=79, y=627)
 
 #Boton Cancelar
 img3 = Image.open("icons/Stop.png")
-btn3 = CTkButton(app, text="Detener", font=("Inter", 36), fg_color="#F21D1D", hover_color="#F21D1D", command=lambda: print("Botón presionado"), width=448, height=49, image=CTkImage(img3))
+btn3 = CTkButton(app, text="Detener", font=("Inter", 36), fg_color="#F21D1D", hover_color="#F21D1D", command=lambda: stop(), width=448, height=49, image=CTkImage(img3))
 btn3.place(x=659, y=627)
 
 #Label PipeSound
@@ -133,22 +136,31 @@ for i in range(len(INDICES)):
 
 
 def run_indices():
-    indices = []
-    for cb, i in checkbox_list:
-        if cb.get() == 1:
-            indices.append(INDICES[i])
-    analizer = Analizer('../config/config.yaml')
-    csv_path = "prueba.csv"
-    last_file = load_last_processed_file()
-    analizer.set_headers(indices, csv_path)
-    if last_file:
-        choice = input(f"El programa fue interrumpido repentinamente, se encontró progreso previo en '{last_file}'. ¿Desea continuar desde allí? (s/n): ")
-        if choice.lower() != 's':
-            reset_progress()
-            last_file = None
+    global STOP
+    STOP = False
 
-    analize('../Test_audios', analizer, indices, csv_path, last_file)
+    def analysis_thread():
+        indices = []
+        for cb, i in checkbox_list:
+            if cb.get() == 1:
+                indices.append(INDICES[i])
+        analizer = Analizer('../config/config.yaml')
+        csv_path = "prueba.csv"
+        last_file = load_last_processed_file()
+        analizer.set_headers(indices, csv_path)
+        if last_file:
+            choice = input(f"El programa fue interrumpido repentinamente, se encontró progreso previo en '{last_file}'. ¿Desea continuar desde allí? (s/n): ")
+            if choice.lower() != 's':
+                reset_progress()
+                last_file = None
+
+        analize('../Test_audios', analizer, indices, csv_path, last_file, stop_flag=lambda: STOP)
+
+    threading.Thread(target=analysis_thread, daemon=True).start()
    
-    
+def stop():
+    global STOP
+    STOP = True
+    print("Se ha solicitado detener el análisis.")
 
 app.mainloop()

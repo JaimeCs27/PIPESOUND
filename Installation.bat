@@ -1,1 +1,1 @@
-pip install customtkinter pillow scipy numpy
+pip install customtkinter pillow scipy numpy pyyaml
