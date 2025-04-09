@@ -161,6 +161,8 @@ def run_indices():
 def stop():
     global STOP
     STOP = True
+    
+
     print("Se ha solicitado detener el análisis.")
 
 app.mainloop()

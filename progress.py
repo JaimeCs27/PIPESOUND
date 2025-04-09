@@ -49,6 +49,11 @@ def analize(base_dir, analizer, indices, csv_path, resume_from=None, stop_flag=N
         try:
             if stop_flag and stop_flag():
                 print("Análisis detenido por el usuario.")
+                archivos = ["prueba.csv", "progress.txt"]
+
+                for archivo in archivos:
+                    if os.path.exists(archivo):
+                        os.remove(archivo)
                 return
             analizer.process_audio_file(file, indices)
             analizer.write_to_csv(file, "project a", path.basename(path.dirname(full_path)), csv_path)
