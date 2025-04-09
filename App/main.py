@@ -3,201 +3,238 @@ from PIL import Image
 import sys
 from os import path, walk
 import threading
+from bienvenida import PipeSoundWelcome
 # Agrega la carpeta superior al path
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
 from Analizer.Analizer import *
 from Analizer.progress import load_last_processed_file, save_last_processed_file, reset_progress, PROGRESS_FILE, analize
 
+# Global variables
 STOP = False
-
-app = CTk()
-app_width = 1280
-app_height = 720
-x = (app.winfo_screenwidth() // 2) - (app_width // 2)
-y = (app.winfo_screenheight() // 2) - (app_height // 2)
-
-# Establecer la geometría del pop-up en el centro de la pantalla
-app.geometry(f"{app_width}x{app_height}+{x}+{y}")
-#Fondo del app
-app.configure(fg_color="#272B2B")
-
-#Boton Retroceder
-img = Image.open("icons/Arrow.png")
-btn = CTkButton(app, text="", fg_color="transparent", hover_color="#272B2B", command=lambda: print("Botón presionado"), width=33, height=33, image=CTkImage(img))
-btn.place(x=51, y=19)
-
-#Boton Confirmar
-img2 = Image.open("icons/Run.png")
-btn2 = CTkButton(app, text="Correr", font=("Inter", 36), fg_color="#63C132", hover_color="#63C132", command=lambda: run_indices(), width=448, height=49, image=CTkImage(img2))
-btn2.place(x=79, y=627)
-
-#Boton Cancelar
-img3 = Image.open("icons/Stop.png")
-btn3 = CTkButton(app, text="Detener", font=("Inter", 36), fg_color="#F21D1D", hover_color="#F21D1D", command=lambda: stop(), width=448, height=49, image=CTkImage(img3))
-btn3.place(x=659, y=627)
-
-#Label PipeSound
-label = CTkLabel(app, text="Pipe", text_color="#FFFFFF", fg_color="transparent", font=("Inter", 30), anchor="w", width=67, height=34)
-label.place(x=1055, y=23)
-label2 = CTkLabel(app, text="Sound", text_color="#63C132", fg_color="transparent", font=("Inter", 30), anchor="w", width=112, height=34)
-label2.place(x=1119, y=23)
-
-#Label Indices
-label3 = CTkLabel(app, text="Índices", text_color="#FFFFFF", fg_color="transparent", font=("Inter", 32), width=115, height=38)
-label3.place(x=245, y=31)
-
-#Label Proyecto
-label4 = CTkLabel(app, text="Proyecto: Mi Proyecto", text_color="#FFFFFF", fg_color="transparent", font=("Inter", 32), anchor="w", width=638, height=38)
-label4.place(x=561, y=116)
-
-#Label Site
-label5 = CTkLabel(app, text="Site: Mi Site", text_color="#FFFFFF", fg_color="transparent", font=("Inter", 32), anchor="w", width=638, height=38)
-label5.place(x=561, y=187)
-
-#Label Archivos
-label6 = CTkLabel(app, text="Archivos Analizados:", text_color="#FFFFFF", fg_color="transparent", font=("Inter", 32), anchor="w", width=638, height=154)
-label6.place(x=554, y=283)
-
-#Slider Progreso
-progressbar = CTkProgressBar(app, fg_color="#ACBAB6", progress_color="#63C132", width=582, height=14)
-progressbar.place(x=553, y=252)
-progressbar.set(0)
-
-# Lista para guardar checkboxes individuales
-checkbox_list = []
-
-# Checkbox "Seleccionar Todos"
-def toggle_all():
-    for cb, _ in checkbox_list:
-        cb.select() if select_all_checkbox.get() == 1 else cb.deselect()
-
-select_all_checkbox = CTkCheckBox(app,
-                                  text="Seleccionar Todos",
-                                  font=("Inter", 20),
-                                  text_color="#FFFFFF",
-                                  border_color="#9EE37D",
-                                  fg_color="#9EE37D",
-                                  hover_color="#9EE37D",
-                                  bg_color="#272B2B",
-                                  checkmark_color="#272B2B",
-                                  command=toggle_all)
-select_all_checkbox.place(x=67, y=75)
-
-# Scrollable panel
-panel_scroll = CTkScrollableFrame(app, width=470, height=500, fg_color="#272B2B", border_color="#272B2B", border_width=0)
-panel_scroll.place(x=50, y=100)
-
+SELECTED_FOLDER = None
+app = None  
+welcome_app = None
 INDICES = ['Acoustic_Complexity_Index', 'Acoustic_Diversity_Index',
                'Acoustic_Evenness_Index', 'Bio_acoustic_Index', 'Normalized_Difference_Sound_Index', 'Spectral_Entropy',
                'NB_peaks', 'Temporal_Entropy', 'Wave_Signal_To_Noise_Ratio']
 
-# Crear múltiples entradas
-for i in range(len(INDICES)):
-    container = CTkFrame(panel_scroll, fg_color="#9EE37D", width=451, height=49, corner_radius=7)
-    container.pack(pady=5)
+class MainApplication(CTk):
+    def __init__(self, folder_path):
+        super().__init__()
+        self.SELECTED_FOLDER = folder_path
+        self.title("PipeSound Analyzer")
+        self._setup_main_window()
+        self._create_widgets()
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
 
-    label = CTkLabel(container,
-                     text=INDICES[i],
-                     font=("Inter", 26),
-                     text_color="#525656",
-                     anchor="w",
-                     width=400,
-                     height=45,
-                     fg_color="transparent")
-    label.place(x=10, y=0)
+    def _setup_main_window(self):
+        self.width = 1280
+        self.height = 720
+        x = (self.winfo_screenwidth() // 2) - (self.width // 2)
+        y = (self.winfo_screenheight() // 2) - (self.height // 2)
+        self.geometry(f"{self.width}x{self.height}+{x}+{y}")
+        self.configure(fg_color="#272B2B")
 
-    checkbox = CTkCheckBox(container,
-                           text=None,
-                           border_color="#525656",
-                           fg_color="#525656",
-                           hover_color="#525656",
-                           bg_color="#9EE37D",
-                           checkmark_color="#9EE37D",
-                           corner_radius=15,
-                           width=30,
-                           height=28)
-    checkbox.place(x=410, y=10)
+    def _create_widgets(self):
+        # Load images
+        self._load_images()
+        
+        # Create all UI elements
+        self._create_buttons()
+        self._create_labels()
+        self._create_progress_bar()
+        self._create_checkboxes()
+        
+    def _load_images(self):
+        try:
+            self.img_arrow = CTkImage(Image.open("icons/Arrow.png"))
+            self.img_run = CTkImage(Image.open("icons/Run.png"))
+            self.img_stop = CTkImage(Image.open("icons/Stop.png"))
+        except Exception as e:
+            print(f"Error loading images: {e}")
+            self.img_arrow = None
+            self.img_run = None
+            self.img_stop = None
 
-    checkbox_list.append((checkbox, i))  # Guardar referencia a cada checkbox
+    def _create_buttons(self):
+        # Back button
+        self.btn_back = CTkButton(self, text="", fg_color="transparent", 
+                                hover_color="#272B2B", command=self.on_back,
+                                width=33, height=33, image=self.img_arrow)
+        self.btn_back.place(x=51, y=19)
 
-def count_items(path_base):
-    contador = 0
-    for root, dirs, files in walk(path_base):
-        for file in files:
-            if file.lower().endswith('.wav'):
-                contador += 1
-    return contador
+        # Run button
+        self.btn_run = CTkButton(self, text="Correr", font=("Inter", 36), 
+                               fg_color="#63C132", hover_color="#63C132", 
+                               command=self.run_indices, width=448, height=49, 
+                               image=self.img_run)
+        self.btn_run.place(x=79, y=627)
 
+        # Stop button
+        self.btn_stop = CTkButton(self, text="Detener", font=("Inter", 36), 
+                                fg_color="#F21D1D", hover_color="#F21D1D", 
+                                command=self.stop_analysis, width=448, height=49, 
+                                image=self.img_stop)
+        self.btn_stop.place(x=659, y=627)
 
-def update_ui_label(current, total):
-    label6.configure(text=f"Archivos Analizados: {current} de {total}")
-    progressbar.set(current / total if total > 0 else 0)
+    def _create_labels(self):
+        # PipeSound label
+        CTkLabel(self, text="Pipe", text_color="#FFFFFF", fg_color="transparent", 
+                font=("Inter", 30), anchor="w", width=67, height=34).place(x=1055, y=23)
+        CTkLabel(self, text="Sound", text_color="#63C132", fg_color="transparent", 
+                font=("Inter", 30), anchor="w", width=112, height=34).place(x=1119, y=23)
 
-def show_popup(message):
-    # Crear la ventana emergente
-    popup = CTkToplevel(app)
-    popup.title("¡Análisis Completo!")
-    popup.configure(fg_color="#272B2B")
+        # Indices label
+        CTkLabel(self, text="Índices", text_color="#FFFFFF", fg_color="transparent", 
+                font=("Inter", 32), width=115, height=38).place(x=245, y=31)
 
-    # Obtener las dimensiones de la ventana principal (app) para centrar el pop-up
-    popup_width = 300
-    popup_height = 200
-    x = (app.winfo_screenwidth() // 2) - (popup_width // 2)
-    y = (app.winfo_screenheight() // 2) - (popup_height // 2)
+        # Project info labels
+        self.lbl_project = CTkLabel(self, text=f"Proyecto: {os.path.basename(self.SELECTED_FOLDER)}", 
+                                  text_color="#FFFFFF", fg_color="transparent", 
+                                  font=("Inter", 32), anchor="w", width=638, height=38)
+        self.lbl_project.place(x=561, y=116)
 
-    # Establecer la geometría del pop-up en el centro de la pantalla
-    popup.geometry(f"{popup_width}x{popup_height}+{x}+{y}")
+        self.lbl_location = CTkLabel(self, text=f"Ubicación: {self.SELECTED_FOLDER}", 
+                                   text_color="#FFFFFF", fg_color="transparent", 
+                                   font=("Inter", 24), anchor="w", width=638, height=38)
+        self.lbl_location.place(x=561, y=187)
 
-    # Crear el contenido del pop-up
-    label = CTkLabel(popup, text=message, text_color="#FFFFFF", font=("Inter", 20), anchor="center")
-    label.place(relx=0.5, rely=0.4, anchor="center")
+        self.lbl_progress = CTkLabel(self, text="Archivos Analizados:", 
+                                   text_color="#FFFFFF", fg_color="transparent", 
+                                   font=("Inter", 32), anchor="w", width=638, height=154)
+        self.lbl_progress.place(x=554, y=283)
 
-    # Botón para cerrar el pop-up
-    button = CTkButton(popup, text="Cerrar", font=("Inter", 16), command=popup.destroy)
-    button.place(relx=0.5, rely=0.6, anchor="center")
+    def _create_progress_bar(self):
+        self.progressbar = CTkProgressBar(self, fg_color="#ACBAB6", 
+                                        progress_color="#63C132", width=582, height=14)
+        self.progressbar.place(x=553, y=252)
+        self.progressbar.set(0)
 
-    # Establecer el enfoque (focus) en el pop-up
-    popup.focus_set()  # Esto hará que el pop-up tenga el enfoque
-    popup.grab_set()   # Esto asegura que el pop-up recibe toda la interacción del usuario
+    def _create_checkboxes(self):
+        self.checkbox_list = []
+        
+        # Select All checkbox
+        self.select_all_checkbox = CTkCheckBox(self, text="Seleccionar Todos", 
+                                             font=("Inter", 20), text_color="#FFFFFF", 
+                                             border_color="#9EE37D", fg_color="#9EE37D", 
+                                             hover_color="#9EE37D", bg_color="#272B2B", 
+                                             checkmark_color="#272B2B", 
+                                             command=self.toggle_all_checkboxes)
+        self.select_all_checkbox.place(x=67, y=75)
 
+        # Scrollable panel with indices
+        panel_scroll = CTkScrollableFrame(self, width=470, height=500, 
+                                        fg_color="#272B2B", border_color="#272B2B", 
+                                        border_width=0)
+        panel_scroll.place(x=50, y=100)
 
+        for i, index in enumerate(INDICES):
+            container = CTkFrame(panel_scroll, fg_color="#9EE37D", 
+                               width=451, height=49, corner_radius=7)
+            container.pack(pady=5)
 
+            CTkLabel(container, text=index, font=("Inter", 20), 
+                    text_color="#525656", anchor="w", width=400, 
+                    height=45, fg_color="transparent").place(x=10, y=0)
 
-def run_indices():
-    global STOP
-    STOP = False
+            checkbox = CTkCheckBox(container, text=None, border_color="#525656",
+                                 fg_color="#525656", hover_color="#525656",
+                                 bg_color="#9EE37D", checkmark_color="#9EE37D",
+                                 corner_radius=15, width=30, height=28)
+            checkbox.place(x=410, y=10)
 
-    path_base = '../Test_audios'
-    total_files = count_items(path_base)
-    label6.configure(text=f"Archivos Analizados: 0 de {total_files}")
-    
+            self.checkbox_list.append((checkbox, i))
 
-    def analysis_thread():
-        indices = []
-        for cb, i in checkbox_list:
-            if cb.get() == 1:
-                indices.append(INDICES[i])
-        analizer = Analizer('../config/config.yaml')
-        csv_path = "prueba.csv"
-        last_file = load_last_processed_file()
-        analizer.set_headers(indices, csv_path)
-        if last_file:
-            choice = input(f"El programa fue interrumpido repentinamente, se encontró progreso previo en '{last_file}'. ¿Desea continuar desde allí? (s/n): ")
-            if choice.lower() != 's':
-                reset_progress()
-                last_file = None
+    def toggle_all_checkboxes(self):
+        for cb, _ in self.checkbox_list:
+            cb.select() if self.select_all_checkbox.get() == 1 else cb.deselect()
 
-        analize(path_base, analizer, indices, csv_path, last_file,
-            stop_flag=lambda: STOP,
-            update_callback=lambda current: app.after(0, update_ui_label, current, total_files))
-        app.after(0, show_popup, "¡El análisis ha terminado!")
+    def run_indices(self):
+        global STOP
+        STOP = False
 
-    threading.Thread(target=analysis_thread, daemon=True).start()
-   
-def stop():
-    global STOP
-    STOP = True
-    print("Se ha solicitado detener el análisis.")
+        path_base = self.SELECTED_FOLDER
+        total_files = self.count_items(path_base)
+        self.lbl_progress.configure(text=f"Archivos Analizados: 0 de {total_files}")
 
-app.mainloop()
+        def analysis_thread():
+            indices = []
+            for cb, i in self.checkbox_list:
+                if cb.get() == 1:
+                    indices.append(INDICES[i])
+                    
+            analizer = Analizer('../config/config.yaml')
+            csv_path = "prueba.csv"
+            last_file = load_last_processed_file()
+            analizer.set_headers(indices, csv_path)
+            
+            if last_file:
+                choice = input(f"Continue from last file '{last_file}'? (y/n): ")
+                if choice.lower() != 'y':
+                    reset_progress()
+                    last_file = None
+
+            analize(path_base, analizer, indices, csv_path, last_file,
+                   stop_flag=lambda: STOP,
+                   update_callback=lambda current: self.update_progress(current, total_files))
+            
+            self.show_popup("¡El análisis ha terminado!")
+
+        threading.Thread(target=analysis_thread, daemon=True).start()
+
+    def update_progress(self, current, total):
+        if hasattr(self, 'lbl_progress') and hasattr(self, 'progressbar'):
+            self.lbl_progress.configure(text=f"Archivos Analizados: {current} de {total}")
+            self.progressbar.set(current / total if total > 0 else 0)
+
+    def show_popup(self, message):
+        popup = CTkToplevel(self)
+        popup.title("¡Análisis Completo!")
+        popup.configure(fg_color="#272B2B")
+        popup_width = 300
+        popup_height = 200
+        x = (self.winfo_screenwidth() // 2) - (popup_width // 2)
+        y = (self.winfo_screenheight() // 2) - (popup_height // 2)
+        popup.geometry(f"{popup_width}x{popup_height}+{x}+{y}")
+
+        CTkLabel(popup, text=message, text_color="#FFFFFF", 
+                font=("Inter", 20), anchor="center").place(relx=0.5, rely=0.4, anchor="center")
+
+        CTkButton(popup, text="Cerrar", font=("Inter", 16), 
+                 command=popup.destroy).place(relx=0.5, rely=0.6, anchor="center")
+
+        popup.focus_set()
+        popup.grab_set()
+
+    def stop_analysis(self):
+        global STOP
+        STOP = True
+        print("Análisis detenido por el usuario")
+
+    def count_items(self, path_base):
+        count = 0
+        for root, dirs, files in walk(path_base):
+            for file in files:
+                if file.lower().endswith('.wav'):
+                    count += 1
+        return count
+
+    def on_back(self):
+        print("Back button pressed")
+
+    def on_close(self):
+        global STOP
+        STOP = True
+        self.destroy()
+
+def on_folder_selected(folder_path):
+    global app, welcome_app
+    if welcome_app:
+        welcome_app.destroy()
+    app = MainApplication(folder_path)
+    app.mainloop()
+
+if __name__ == "__main__":
+    welcome_app = PipeSoundWelcome(callback=on_folder_selected)
+    welcome_app.mainloop()
