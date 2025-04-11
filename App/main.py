@@ -8,7 +8,7 @@ from bienvenida import PipeSoundWelcome
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
 from Analizer.Analizer import *
-from Analizer.progress import load_last_processed_file, save_last_processed_file, reset_progress, PROGRESS_FILE, analize
+from Analizer.progress import load_last_processed_data, save_last_processed_data, reset_progress, PROGRESS_FILE, analize
 
 # Global variables
 STOP = False
@@ -166,9 +166,9 @@ class MainApplication(CTk):
                     
             analizer = Analizer('../config/config.yaml')
             csv_path = "prueba.csv"
-            last_file = load_last_processed_file()
+            last_file = load_last_processed_data()
             analizer.set_headers(indices, csv_path)
-            
+
             if last_file:
                 choice = input(f"Continue from last file '{last_file}'? (y/n): ")
                 if choice.lower() != 'y':
