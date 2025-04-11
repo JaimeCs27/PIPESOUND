@@ -27,6 +27,7 @@ class MainApplication(CTk):
         self._setup_main_window()
         self._create_widgets()
         self.protocol("WM_DELETE_WINDOW", self.on_close)
+        self.last_file = load_last_processed_data()
 
     def _setup_main_window(self):
         self.width = 1280
@@ -153,29 +154,24 @@ class MainApplication(CTk):
     def run_indices(self):
         global STOP
         STOP = False
-
+        print("HOLA")
         path_base = self.SELECTED_FOLDER
         total_files = self.count_items(path_base)
         self.lbl_progress.configure(text=f"Archivos Analizados: 0 de {total_files}")
 
         def analysis_thread():
-            indices = []
-            for cb, i in self.checkbox_list:
-                if cb.get() == 1:
-                    indices.append(INDICES[i])
+            if self.last_file:
+                indices = self.last_file['indices'] 
+            else:
+                indices = []
+                for cb, i in self.checkbox_list:
+                    if cb.get() == 1:
+                        indices.append(INDICES[i])
                     
             analizer = Analizer('../config/config.yaml')
-            csv_path = "prueba.csv"
-            last_file = load_last_processed_data()
+            csv_path = "IndicesBioacusticos.csv"
             analizer.set_headers(indices, csv_path)
-
-            if last_file:
-                choice = input(f"Continue from last file '{last_file}'? (y/n): ")
-                if choice.lower() != 'y':
-                    reset_progress()
-                    last_file = None
-
-            analize(path_base, analizer, indices, csv_path, last_file,
+            analize(path_base, analizer, indices, csv_path, self.last_file,
                    stop_flag=lambda: STOP,
                    update_callback=lambda current: self.update_progress(current, total_files))
             
@@ -233,7 +229,10 @@ def on_folder_selected(folder_path):
     if welcome_app:
         welcome_app.destroy()
     app = MainApplication(folder_path)
+    if app.last_file:
+        app.run_indices()
     app.mainloop()
+    
 
 if __name__ == "__main__":
     welcome_app = PipeSoundWelcome(callback=on_folder_selected)

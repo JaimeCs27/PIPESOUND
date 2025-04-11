@@ -16,9 +16,10 @@ def load_last_processed_data():
                 return None
     return None
 
-def save_last_processed_data(file_full_path, indices):
+def save_last_processed_data(root, file_full_path, indices):
     """Guarda la ruta completa del último archivo procesado y los índices en JSON."""
     data = {
+        "root": root,
         "file": file_full_path,
         "indices": indices
     }
@@ -50,10 +51,12 @@ def analize(base_dir, analizer, indices, csv_path, resume_from=None, stop_flag=N
     for full_path, rel_path in all_wavs:
         if resume:
             if should_skip:
-                if full_path == resume_from:  # Ahora comparamos con full_path
+                if full_path == resume_from['file']:  # Ahora comparamos con full_path
+                    processed_count+=1
                     should_skip = False
                     continue 
                 else:
+                    processed_count+=1
                     continue
 
         file = AudioFile(full_path, True)
@@ -71,7 +74,7 @@ def analize(base_dir, analizer, indices, csv_path, resume_from=None, stop_flag=N
             analizer.process_audio_file(file, indices)
             analizer.write_to_csv(file, "project a", path.basename(path.dirname(full_path)), csv_path)
             processed_count += 1
-            save_last_processed_data(full_path, indices)  # Guarda archivo e índices
+            save_last_processed_data(base_dir, full_path, indices)  # Guarda archivo e índices
 
             if update_callback:
                 update_callback(processed_count)

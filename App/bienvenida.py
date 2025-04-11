@@ -4,12 +4,13 @@ from PIL import Image
 import os
 import sys
 from os import path
+sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
+from Analizer.progress import load_last_processed_data, reset_progress
 
 class PipeSoundWelcome(CTk):
     def __init__(self, callback=None):
         super().__init__()
         self.callback = callback
-        
         # Configuración de la ventana (mismo tamaño que tu ventana principal)
         self.title("PipeSound")
         self.app_width = 1280
@@ -60,6 +61,11 @@ class PipeSoundWelcome(CTk):
                                    hover_color="#63C132", width=300, height=50,
                                    command=self.seleccionar_carpeta)
         self.btn_carpeta.place(relx=0.5, rely=0.6, anchor="center")
+
+        self.last_file = load_last_processed_data()
+        if self.last_file:
+            self.reanudarProgresoPopUp(f"El programa fue interrumpido repentinamente, se encontró progreso previo en '{self.last_file['root']}'. ¿Desea continuar desde allí?")
+        
         
         # Créditos
         #self.label_creditos = CTkLabel(self, text="En alianza con:", 
@@ -84,4 +90,60 @@ class PipeSoundWelcome(CTk):
                 if file.lower().endswith('.wav'):
                     return True
         return False
+    
+
+    def iniciarReanudarProgreso(self):
+        if self.callback:
+            self.callback(self.last_file['root'])
+
+    def reanudarProgresoPopUp(self, message):
+        popup = CTkToplevel(self)
+        popup.title("Recuperar progreso")
+        popup.configure(fg_color="#272B2B")
+        popup_width = 400  # Un poco más ancho para acomodar los dos botones
+        popup_height = 220
+        x = (self.winfo_screenwidth() // 2) - (popup_width // 2)
+        y = (self.winfo_screenheight() // 2) - (popup_height // 2)
+        popup.geometry(f"{popup_width}x{popup_height}+{x}+{y}")
+        popup.resizable(False, False)  # Evitar que el usuario redimensione
+        
+        # Configurar el mensaje
+        label = CTkLabel(popup, 
+                        text=message, 
+                        text_color="#FFFFFF", 
+                        font=("Inter", 14),  # Tamaño más pequeño para mensajes largos
+                        wraplength=350,  # Ajustar texto largo
+                        justify="center")
+        label.pack(pady=20, padx=10)
+        
+        # Frame para contener los botones
+        button_frame = CTkFrame(popup, fg_color="transparent")
+        button_frame.pack(pady=10)
+        
+        # Botón Sí
+        btn_yes = CTkButton(button_frame, 
+                        text="Sí", 
+                        font=("Inter", 16),
+                        width=100,
+                        fg_color="#2E8B57", 
+                        hover_color="#3CB371",
+                        command=lambda: [self.callback(self.last_file['root'])])
+        btn_yes.pack(side="left", padx=10)
+
+
+        
+        # Botón No
+        btn_no = CTkButton(button_frame, 
+                        text="No", 
+                        font=("Inter", 16),
+                        width=100,
+                        fg_color="#B22222",
+                        hover_color="#CD5C5C",
+                        command=lambda: [reset_progress(), popup.destroy()])
+        btn_no.pack(side="left", padx=10)
+        
+        popup.focus_set()
+        popup.grab_set()
+        popup.transient(self)  
+        
 

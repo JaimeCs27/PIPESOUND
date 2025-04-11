@@ -1,1 +1,0 @@
-{"file": "C:/Users/natas/AppData/Local/GitHubDesktop/app-3.4.8/PIPESOUND/Test_audios/site1\\1.wav", "indices": ["Acoustic_Complexity_Index", "Spectral_Entropy", "NB_peaks", "Temporal_Entropy"]}
