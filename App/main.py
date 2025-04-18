@@ -154,7 +154,7 @@ class MainApplication(CTk):
     def run_indices(self):
         global STOP
         STOP = False
-        print("HOLA")
+
         path_base = self.SELECTED_FOLDER
         total_files = self.count_items(path_base)
         self.lbl_progress.configure(text=f"Archivos Analizados: 0 de {total_files}")
