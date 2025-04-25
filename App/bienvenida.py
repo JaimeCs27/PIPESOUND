@@ -52,7 +52,7 @@ class PipeSoundWelcome(CTk):
         self.btn_arbimon = CTkButton(self, text="Descargar desde ARBIMON", 
                                     font=("Inter", 18), fg_color="#63C132", 
                                     hover_color="#63C132", width=300, height=50,
-                                    state="disabled")
+                                    command=self.seleccionar_proyecto_arbimon)
         self.btn_arbimon.place(relx=0.5, rely=0.5, anchor="center")
         
         # Botón Carpeta Local
@@ -74,7 +74,10 @@ class PipeSoundWelcome(CTk):
         #self.label_creditos.place(relx=0.5, rely=0.85, anchor="center")
         
         # Aquí podrías añadir logos de aliados si los tienes
-        
+    '''
+    def seleccionar_proyecto_arbimon(self):
+        self.arbimonWindow = arbimonWindow()
+    '''
     def seleccionar_carpeta(self):
         carpeta = filedialog.askdirectory()
         if carpeta:
