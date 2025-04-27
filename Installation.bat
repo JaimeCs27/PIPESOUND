@@ -1,1 +1,1 @@
-pip install customtkinter pillow scipy numpy pyyaml request rfcx-0.3.1-py3-none-any.whl
+pip install customtkinter pillow scipy numpy pyyaml soundfile request rfcx-0.3.1-py3-none-any.whl

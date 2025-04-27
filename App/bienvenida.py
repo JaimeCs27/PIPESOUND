@@ -51,8 +51,9 @@ class PipeSoundWelcome(CTk):
         # Botón ARBIMON (sin implementar)
         self.btn_arbimon = CTkButton(self, text="Descargar desde ARBIMON", 
                                     font=("Inter", 18), fg_color="#63C132", 
-                                    hover_color="#63C132", width=300, height=50,
-                                    command=self.seleccionar_proyecto_arbimon)
+                                    hover_color="#63C132", width=300, height=50 #,
+                                    #command=self.seleccionar_proyecto_arbimon
+                                    )
         self.btn_arbimon.place(relx=0.5, rely=0.5, anchor="center")
         
         # Botón Carpeta Local
@@ -90,7 +91,7 @@ class PipeSoundWelcome(CTk):
     def contiene_audio(self, ruta):
         for root, dirs, files in os.walk(ruta):
             for file in files:
-                if file.lower().endswith('.wav'):
+                if file.lower().endswith('.wav') or file.lower().endswith('.flac'): #agregando .flac
                     return True
         return False
     

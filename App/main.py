@@ -212,7 +212,7 @@ class MainApplication(CTk):
         count = 0
         for root, dirs, files in walk(path_base):
             for file in files:
-                if file.lower().endswith('.wav'):
+                if file.lower().endswith('.wav') or file.lower().endswith('.flac'):
                     count += 1
         return count
 

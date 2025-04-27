@@ -3,6 +3,9 @@ from Analizer.acoustic_index import *
 from scipy import signal
 from os import walk, path, remove
 from datetime import datetime
+import os
+import soundfile as sf
+from concurrent.futures import ThreadPoolExecutor
 
 PROGRESS_FILE = 'progress.txt'
 
@@ -31,20 +34,47 @@ def reset_progress():
     if path.exists(PROGRESS_FILE):
         remove(PROGRESS_FILE)
 
+def convert_to_wav(file_path):
+    if file_path.lower().endswith('.flac'):
+        try:
+            data, samplerate = sf.read(file_path)
+            wav_path = os.path.splitext(file_path)[0] + '.wav'
+            sf.write(wav_path, data, samplerate)
+            print(f'Archivo convertido y guardado como: {wav_path}')
+
+            os.remove(file_path)
+            print(f'Archivo .flac eliminado: {file_path}')
+
+        except Exception as e:
+            print(f"Error al convertir {file_path}: {e}")
+
 def analize(base_dir, analizer, indices, csv_path, resume_from=None, stop_flag=None, update_callback=None):
     """Analiza los archivos de audio en base_dir y guarda el progreso."""
     resume = resume_from is not None
     should_skip = True
 
     all_wavs = []
+    flac_files = []
 
-    # Obtener lista de archivos .wav con rutas completas y relativas
+    # Recopilar rutas de archivos .wav y .flac
     for root, _, files in walk(base_dir):
         for filename in sorted(files):
+            full_path = path.join(root, filename)
             if filename.endswith('.wav'):
-                full_path = path.join(root, filename)
                 rel_path = path.relpath(full_path, base_dir)
                 all_wavs.append((full_path, rel_path))
+            elif filename.endswith('.flac'):
+                flac_files.append(full_path)
+
+    with ThreadPoolExecutor() as executor:
+        executor.map(convert_to_wav, flac_files)
+
+    # Agregar archivos .wav nuevos generados por la conversión
+    for flac_path in flac_files:
+        wav_path = os.path.splitext(flac_path)[0] + '.wav'
+        if path.exists(wav_path):
+            rel_path = path.relpath(wav_path, base_dir)
+            all_wavs.append((wav_path, rel_path))
 
     processed_count = 0
 
@@ -65,7 +95,6 @@ def analize(base_dir, analizer, indices, csv_path, resume_from=None, stop_flag=N
             if stop_flag and stop_flag():
                 print("Análisis detenido por el usuario.")
                 archivos = ["prueba.csv", PROGRESS_FILE]
-
                 for archivo in archivos:
                     if path.exists(archivo):
                         remove(archivo)
@@ -74,7 +103,7 @@ def analize(base_dir, analizer, indices, csv_path, resume_from=None, stop_flag=N
             analizer.process_audio_file(file, indices)
             analizer.write_to_csv(file, "project a", path.basename(path.dirname(full_path)), csv_path)
             processed_count += 1
-            save_last_processed_data(base_dir, full_path, indices)  # Guarda archivo e índices
+            save_last_processed_data(base_dir, full_path, indices)
 
             if update_callback:
                 update_callback(processed_count)
@@ -83,4 +112,4 @@ def analize(base_dir, analizer, indices, csv_path, resume_from=None, stop_flag=N
             print(f"Error procesando {full_path}: {e}")
             return
 
-    reset_progress()  # Elimina PROGRESS_FILE al completar todo
+    reset_progress()
