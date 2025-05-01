@@ -6,7 +6,13 @@ import threading
 from bienvenida import PipeSoundWelcome
 # Agrega la carpeta superior al path
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
-
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Analizer')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Analizer', 'acoustic_index')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Analizer', 'progress')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Analizer', 'config')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Analizer', 'config', 'config.yaml')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Analizer', 'config', 'config')))
 from Analizer.Analizer import *
 from Analizer.progress import load_last_processed_data, save_last_processed_data, reset_progress, PROGRESS_FILE, analize
 
