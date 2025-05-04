@@ -6,6 +6,7 @@ import sys
 from os import path
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 from Analizer.progress import load_last_processed_data, reset_progress
+from ArbimonWindow import ArbimonWindow
 
 class PipeSoundWelcome(CTk):
     def __init__(self, callback=None):
@@ -51,8 +52,8 @@ class PipeSoundWelcome(CTk):
         # Botón ARBIMON (sin implementar)
         self.btn_arbimon = CTkButton(self, text="Descargar desde ARBIMON", 
                                     font=("Inter", 18), fg_color="#63C132", 
-                                    hover_color="#63C132", width=300, height=50 #,
-                                    #command=self.seleccionar_proyecto_arbimon
+                                    hover_color="#63C132", width=300, height=50 ,
+                                    command=self.seleccionar_proyecto_arbimon
                                     )
         self.btn_arbimon.place(relx=0.5, rely=0.5, anchor="center")
         
@@ -75,10 +76,13 @@ class PipeSoundWelcome(CTk):
         #self.label_creditos.place(relx=0.5, rely=0.85, anchor="center")
         
         # Aquí podrías añadir logos de aliados si los tienes
-    '''
+    
     def seleccionar_proyecto_arbimon(self):
-        self.arbimonWindow = arbimonWindow()
-    '''
+        self.withdraw()
+        arbimonWindow = ArbimonWindow(self)
+        arbimonWindow.mainloop()
+
+    
     def seleccionar_carpeta(self):
         carpeta = filedialog.askdirectory()
         if carpeta:

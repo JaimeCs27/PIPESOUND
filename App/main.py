@@ -60,7 +60,7 @@ class MainApplication(CTk):
 
     def _create_buttons(self):
         # Back button
-        self.btn_back = CTkButton(self, text="", fg_color="transparent", 
+        self.btn_back = CTkButton(self, text="Volver", fg_color="transparent", 
                                 hover_color="#272B2B", command=self.on_back,
                                 width=33, height=33, image=self.img_arrow)
         self.btn_back.place(x=51, y=19)
@@ -217,17 +217,21 @@ class MainApplication(CTk):
         return count
 
     def on_back(self):
-        print("Back button pressed")
+        global welcome_app
+        welcome_app.deiconify()
+        self.destroy()
 
     def on_close(self):
         global STOP
         STOP = True
         self.destroy()
+        global welcome_app
+        welcome_app.destroy()
 
 def on_folder_selected(folder_path):
     global app, welcome_app
     if welcome_app:
-        welcome_app.destroy()
+        welcome_app.withdraw()
     app = MainApplication(folder_path)
     if app.last_file:
         app.run_indices()

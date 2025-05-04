@@ -5,10 +5,6 @@ import datetime
 class ArbimonModule:
     def __init__(self):
         self.client = None
-        try:
-            self.Authenticate()
-        except Exception as e:
-            print("Error while authenticating with arbimon. " + str(e))
 
     '''
     Esta función se encarga de autenticar el usuario de arbimon y crea el cliente
@@ -54,8 +50,8 @@ class ArbimonModule:
         for site in sites:            
             try:
                 self.Download_Site(site, full_path, start, end)
-            except:
-                print("Error while downloading site: " + site["name"])
+            except Exception as e:
+                print("Error while downloading site " + site["name"] + ": " + str(e))
 
     '''
     Esta funcion se encarga de descargar los audios de un site en una carpeta local
@@ -68,7 +64,9 @@ class ArbimonModule:
         No posee
     '''
     def Download_Site(self, site, folder_path, start, end):
-        self.client.download_segments(site["id"],folder_path, start, end)
+        if self.client == None:
+            raise Exception("Client not found")
+        self.client.download_segments(site["id"],folder_path, start, end, file_ext="flac")
 
     
     def Create_folder_for_project(self, full_path):
