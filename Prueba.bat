@@ -1,61 +1,77 @@
 @echo off
 setlocal
 
-echo === Verificando instalacion de Python...
+echo === Verificando si Python ya está instalado...
 
-:: Verificar si Python ya está instalado
+:: Verificar si python está en PATH
 python --version >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
-    echo ✅ Python ya esta instalado.
+    echo ✅ Python ya está instalado.
     goto verificar_pip
 )
 
-echo ⚠️ Python no esta instalado. Descargando Python 3.10.11...
+echo ⚠️ Python no está instalado. Descargando instalador de Python 3.10.11...
 
-:: Ruta del instalador
+:: Configurar variables
 set "PYTHON_INSTALLER=%TEMP%\python-3.10.11-amd64.exe"
 set "PYTHON_URL=https://www.python.org/ftp/python/3.10.11/python-3.10.11-amd64.exe"
+set "PYTHON_PATH=%ProgramFiles%\Python310\python.exe"
+set "PIP_PATH=%ProgramFiles%\Python310\Scripts\pip.exe"
 
 :: Descargar el instalador
 powershell -Command "Invoke-WebRequest -Uri '%PYTHON_URL%' -OutFile '%PYTHON_INSTALLER%'"
 
-:: Verificar descarga
+:: Verificar que se haya descargado
 if not exist "%PYTHON_INSTALLER%" (
-    echo ❌ No se pudo descargar el instalador de Python.
+    echo ❌ No se pudo descargar el instalador.
     goto end
 )
 
-echo ✅ Instalador descargado. Ejecutando instalacion...
+echo ✅ Instalador descargado. Ejecutando instalación...
 
-:: Ejecutar el instalador en modo silencioso (modo compatible con Windows 10)
+:: Ejecutar instalación en modo silencioso (sintaxis compatible con Windows 10)
 "%PYTHON_INSTALLER%" /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
 
-:: Verificar instalación
-python --version >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo ❌ La instalacion de Python fallo.
+:: Esperar unos segundos para que se complete
+timeout /t 5 >nul
+
+:: Verificar Python por ruta directa
+if exist "%PYTHON_PATH%" (
+    echo ✅ Python se instaló correctamente en: %PYTHON_PATH%
+) else (
+    echo ❌ No se encontró Python en la ruta esperada.
     goto end
 )
 
-echo ✅ Python 3.10 instalado correctamente.
+:: Mostrar versión
+"%PYTHON_PATH%" --version
 
 :verificar_pip
 echo === Verificando pip...
+
+:: Primero intentamos desde el PATH actual
 pip --version >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
-    echo ✅ pip ya esta instalado.
+    echo ✅ pip ya está disponible globalmente.
     goto end
 )
 
-echo ⚠️ pip no esta instalado. Ejecutando ensurepip...
-python -m ensurepip --upgrade >nul 2>&1
-python -m pip install --upgrade pip >nul 2>&1
+:: Si no está, intentamos desde ruta directa
+if exist "%PIP_PATH%" (
+    echo ✅ pip está disponible en: %PIP_PATH%
+    "%PIP_PATH%" --version
+    goto end
+)
 
-:: Verificar pip de nuevo
-pip --version >nul 2>&1
-if %ERRORLEVEL% EQU 0 (
-    echo ✅ pip se instalo correctamente.
-    pip install customtkinter pillow scipy numpy pyyaml soundfile rfcx-0.3.1-py3-none-any.whl
+:: Si aún no está, intentar instalarlo manualmente con ensurepip
+echo ⚠️ pip no está instalado. Intentando instalar...
+"%PYTHON_PATH%" -m ensurepip --upgrade >nul 2>&1
+"%PYTHON_PATH%" -m pip install --upgrade pip >nul 2>&1
+
+:: Verificar de nuevo
+if exist "%PIP_PATH%" (
+    echo ✅ pip fue instalado exitosamente.
+    "%PIP_PATH%" --version
 ) else (
     echo ❌ pip no se pudo instalar.
 )
