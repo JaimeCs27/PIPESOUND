@@ -1,14 +1,17 @@
 from customtkinter import *
 from PIL import Image
 import sys
-from os import path, walk
+from os import path, walk, listdir
 import threading
 from bienvenida import PipeSoundWelcome
+from terminal import TerminalWindow
+import threading
+import time
 # Agrega la carpeta superior al path
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
 from Analizer.Analizer import *
-from Analizer.progress import load_last_processed_data, save_last_processed_data, reset_progress, PROGRESS_FILE, analize
+from Analizer.progress import load_last_processed_data, reset_progress, PROGRESS_PATH, analize
 
 # Global variables
 STOP = False
@@ -28,6 +31,13 @@ class MainApplication(CTk):
         self._create_widgets()
         self.protocol("WM_DELETE_WINDOW", self.on_close)
         self.last_file = load_last_processed_data()
+
+    def on_close(self):
+        global STOP
+        STOP = True
+        print("Salir de la aplicación")
+        self.destroy()
+        sys.exit(0)
 
     def _setup_main_window(self):
         self.width = 1280
@@ -49,9 +59,13 @@ class MainApplication(CTk):
         
     def _load_images(self):
         try:
-            self.img_arrow = CTkImage(Image.open("icons/Arrow.png"))
-            self.img_run = CTkImage(Image.open("icons/Run.png"))
-            self.img_stop = CTkImage(Image.open("icons/Stop.png"))
+            self.img_arrow = CTkImage(Image.open(path.join(path.dirname(__file__), "icons\Arrow.png")))
+            self.img_run = CTkImage(Image.open(path.join(path.dirname(__file__), "icons\Run.png")))
+            self.img_stop = CTkImage(Image.open(path.join(path.dirname(__file__), "icons\Stop.png")))
+            if self.img_arrow and self.img_run and self.img_stop:
+                print("Imágenes cargadas correctamente")
+            else:
+                print("Alguna imagen no se cargó correctamente.")
         except Exception as e:
             print(f"Error loading images: {e}")
             self.img_arrow = None
@@ -62,21 +76,19 @@ class MainApplication(CTk):
         # Back button
         self.btn_back = CTkButton(self, text="Volver", fg_color="transparent", 
                                 hover_color="#272B2B", command=self.on_back,
-                                width=33, height=33, image=self.img_arrow)
+                                width=33, height=33)
         self.btn_back.place(x=51, y=19)
 
         # Run button
         self.btn_run = CTkButton(self, text="Correr", font=("Inter", 36), 
                                fg_color="#63C132", hover_color="#63C132", 
-                               command=self.run_indices, width=448, height=49, 
-                               image=self.img_run)
+                               command=self.run_indices, width=448, height=49)
         self.btn_run.place(x=79, y=627)
 
         # Stop button
         self.btn_stop = CTkButton(self, text="Detener", font=("Inter", 36), 
                                 fg_color="#F21D1D", hover_color="#F21D1D", 
-                                command=self.stop_analysis, width=448, height=49, 
-                                image=self.img_stop)
+                                command=self.stop_analysis, width=448, height=49)
         self.btn_stop.place(x=659, y=627)
 
     def _create_labels(self):
@@ -159,6 +171,8 @@ class MainApplication(CTk):
         total_files = self.count_items(path_base)
         self.lbl_progress.configure(text=f"Archivos Analizados: 0 de {total_files}")
 
+        
+
         def analysis_thread():
             if self.last_file:
                 indices = self.last_file['indices'] 
@@ -169,12 +183,14 @@ class MainApplication(CTk):
                         indices.append(INDICES[i])
                     
             analizer = Analizer('../config/config.yaml')
-            csv_path = "IndicesBioacusticos.csv"
+            csv_path = path.join(path.dirname(__file__), "IndicesBioacusticos.csv")
+            if (path.exists(csv_path)):
+                os.remove(csv_path)
+            temp_path = path.join(path.dirname(__file__), "temp_audio_files")
             analizer.set_headers(indices, csv_path)
-            analize(path_base, analizer, indices, csv_path, self.last_file,
+            analize(path_base, analizer, indices, csv_path, temp_path, self.last_file,
                    stop_flag=lambda: STOP,
-                   update_callback=lambda current: self.update_progress(current, total_files))
-            
+                   update_callback=lambda current, total: self.update_progress(current, total_files))
             self.show_popup("¡El análisis ha terminado!")
 
         threading.Thread(target=analysis_thread, daemon=True).start()
@@ -235,9 +251,24 @@ def on_folder_selected(folder_path):
     app = MainApplication(folder_path)
     if app.last_file:
         app.run_indices()
-    app.mainloop()
     
+    
+    
+    app.mainloop()
 
 if __name__ == "__main__":
     welcome_app = PipeSoundWelcome(callback=on_folder_selected)
+
+    # # Crear la ventana de la terminal como una ventana secundaria
+    # terminal_window = TerminalWindow()
+    # terminal_window.withdraw()  # Ocultar temporalmente la ventana
+
+    # # Mostrar ambas ventanas
+    # def show_terminal():
+    #     terminal_window.deiconify()  # Mostrar la ventana de la terminal
+
+    # # Usar un temporizador para mostrar la terminal después de iniciar la bienvenida
+    # welcome_app.after(100, show_terminal)
+
+    # Ejecutar el bucle principal de la aplicación
     welcome_app.mainloop()

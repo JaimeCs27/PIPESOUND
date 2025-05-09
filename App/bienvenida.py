@@ -66,7 +66,7 @@ class PipeSoundWelcome(CTk):
 
         self.last_file = load_last_processed_data()
         if self.last_file:
-            self.reanudarProgresoPopUp(f"El programa fue interrumpido repentinamente, se encontró progreso previo en '{self.last_file['root']}'. ¿Desea continuar desde allí?")
+            self.reanudarProgresoPopUp(f"El programa fue interrumpido repentinamente, se encontró progreso previo. ¿Desea continuar desde allí?")
         
         
         # Créditos

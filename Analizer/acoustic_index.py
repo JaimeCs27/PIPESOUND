@@ -96,15 +96,15 @@ class AudioFile(object):
         default_channel = 0  # Used channel if the audio file contains more than one channel
         #default_channel = 1
 
-        if verbose:
-            print('Read the audio file:', file_path)
+        # if verbose:
+        #     print('Read the audio file:', file_path)
         try:
             sr, sig = wavread(file_path)
         except IOError:
             print("Error: can\'t read the audio file:", file_path)
         else:
-            if verbose:
-                print('\tSuccessful read of the audio file:', file_path)
+            # if verbose:
+            #     print('\tSuccessful read of the audio file:', file_path)
             if len(sig.shape)>1:
                 if verbose:
                     print('\tThe audio file contains more than one channel. Only the channel', default_channel, 'will be used.')

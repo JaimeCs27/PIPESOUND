@@ -39,6 +39,8 @@ class Analizer:
                 self.NB_peaks(file)
             elif index == 'Temporal_Entropy':
                 self.Temporal_Entropy(file)
+            elif index == 'Wave_Signal_To_Noise_Ratio':
+                self.Wave_Signal_To_Noise_Ratio(file)
     '''
     Esta funcion se encarga de obtener los atributos/parametros de la configuracion y realida el analisis Spectral de entropia
     Entradas:
@@ -82,7 +84,6 @@ class Analizer:
         j_bin = int(self.config[INDICES][index][ARG]["j_bin"] * file.sr / self.config[INDICES][index][SPECTR]['windowHop'])
         main_value, temporal_values = methodToCall(spectro, j_bin)
         file.indices[index] = Index(index, temporal_values=temporal_values, main_value=main_value)
-    
 
     '''
     Esta función se encarga de obtener los atributos/parámetros de la configuración y realiza el analisis para el indice: Acoustic Diversity
@@ -175,12 +176,17 @@ class Analizer:
         No tiene
     '''
     def Wave_Signal_To_Noise_Ratio(self, file):
-        index = 'Wave_Signal_To_Noise_Ratio'
+        index = 'Wave_SNR'
         methodToCall = globals().get(self.config[INDICES][index]['function'])
         main_value = methodToCall(file, **self.config[INDICES][index][ARG])
-        file.indices[index] = Index(index, main_value=main_value)
-
-
+        processed_values = {
+            'name': index,
+            'main_value': main_value['SNR']  # Extraer el valor principal
+            # 'Acoustic_activity': main_value['Acoustic_activity'],
+            # 'Count_acoustic_events': main_value['Count_acoustic_events'],
+            # 'Average_duration': main_value['Average_duration']
+        }
+        file.indices[index] = Index(**processed_values)
 
 
     '''
@@ -213,6 +219,28 @@ class Analizer:
             f.flush()  # Fuerza la escritura en disco
             fsync(f.fileno())  # Asegura que los datos se guarden físicamente
 
+    def create_temp_file(self, file, project_name, site, temp_path):
+        temp_path = path.join(temp_path, file.file_name + ".txt")
+        result = ''
+        date = datetime.datetime.fromtimestamp(path.getctime(file.file_path))
+        format_date = date.strftime("%Y-%m-%d")
+        format_hour = date.strftime('%H:%M:%S')
+        values = [project_name, site, format_date, format_hour, file.file_name]
+        keys = ['project_name', 'site', 'date', 'time', 'filename']
+        for index, Index in file.indices.items():
+            for key, value in Index.__dict__.items():
+                if key != 'name':
+                    keys.append(index + "_" + key)
+                    values.append(float(value))
+        result = ''
+        for value in values:
+            result += str(value) + ','
+        result += '\n'
+        with open(temp_path, "a", newline="") as f:
+            f.write(result)
+            f.flush()
+            fsync(f.fileno())
+
 
     def set_headers(self, indices, csv_path):
         if not path.exists(csv_path):
@@ -226,6 +254,11 @@ class Analizer:
                     keys += (index + "_median,")
                     keys += (index + "_std,")
                     keys += (index + "_var,")
+                if index == 'Wave_SNR':
+                    keys += (index + "_SNR,")
+                    keys += (index + "_Acoustic_activity,")
+                    keys += (index + "_Count_acoustic_events,")
+                    keys += (index + "_Average_duration,")
             keys += '\n'
             with open(csv_path, "w", newline="") as f:
                 f.write(keys)
