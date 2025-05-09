@@ -11,6 +11,7 @@ SPECTR = 'spectro'
 
 class Analizer:
     def __init__(self, config_file):
+        print(config_file)
         with open(config_file, 'r') as stream:
             self.config = yaml.load(stream, Loader=yaml.FullLoader)
 

@@ -179,8 +179,8 @@ class AudioAnalyzer(CTkFrame):
                 for cb, i in self.checkbox_list:
                     if cb.get() == 1:
                         indices.append(INDICES[i])
-                    
-            analizer = Analizer('../config/config.yaml')
+            config_path = path.join(path.dirname(__file__), "../config/config.yaml")
+            analizer = Analizer(config_path)
             csv_path = path.join(path.dirname(__file__), "IndicesBioacusticos.csv")
             if (path.exists(csv_path)):
                 os.remove(csv_path)
