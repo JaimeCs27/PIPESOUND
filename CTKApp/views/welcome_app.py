@@ -56,6 +56,13 @@ class PipeSoundWelcome(CTkFrame):
                                    command=self.seleccionar_carpeta)
         self.btn_carpeta.place(relx=0.5, rely=0.6, anchor="center")
 
+        # Botón Carpeta Local
+        self.btn_carpeta = CTkButton(self, text="Analizar CSV", 
+                                   font=("Inter", 18), fg_color="#63C132", 
+                                   hover_color="#63C132", width=300, height=50,
+                                   command=self.csv_window)
+        self.btn_carpeta.place(relx=0.5, rely=0.7, anchor="center")
+
         self.last_file = load_last_processed_data()
         if self.last_file:
             self.reanudarProgresoPopUp(f"El programa fue interrumpido repentinamente, se encontró progreso previo. ¿Desea continuar desde allí?")
@@ -72,6 +79,8 @@ class PipeSoundWelcome(CTkFrame):
     def seleccionar_proyecto_arbimon(self):
         self.controller.show_frame("ArbimonWindow")
 
+    def csv_window(self):
+        self.controller.show_frame("ViolinChartWindow")
     
     def seleccionar_carpeta(self):
         carpeta = filedialog.askdirectory()

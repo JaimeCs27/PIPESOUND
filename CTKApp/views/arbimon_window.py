@@ -1,5 +1,6 @@
 from customtkinter import *
 from tkinter import filedialog, messagebox
+from PIL import Image
 import os
 import sys
 import threading
@@ -10,6 +11,7 @@ from controllers.arbimonModule import ArbimonModule
 class ArbimonWindow(CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
+        self._load_images()
         self.btn_setup()
         self.label_setup()
 
@@ -18,12 +20,25 @@ class ArbimonWindow(CTkFrame):
         self.sites = []
         self.folder = ""
 
-        self.authenticate()
-        self.load_projects()
+        
         self.selection_setup()
         self.loading_setup()
 
         self.site_checkboxes = {}  # Guardará los CheckBox para cada sitio
+
+    
+
+    def _load_images(self):
+        try:
+            self.img_arrow = CTkImage(Image.open(path.join(path.dirname(__file__), "icons\Arrow.png")))
+            if self.img_arrow:
+                print("Imágenes cargadas correctamente")
+            else:
+                print("Alguna imagen no se cargó correctamente.")
+        except Exception as e:
+            print(f"Error loading images: {e}")
+            self.img_arrow = None
+
 
     def selection_setup(self):
         project_names = ["Selección de proyectos"] + [item['name'] for item in self.projects]
@@ -41,6 +56,9 @@ class ArbimonWindow(CTkFrame):
         self.progress_bar.set(0)
         self.progress_bar.configure(mode="indeterminate")
         self.progress_bar.stop()
+
+    def load_up(self):
+        self.load_projects()
 
     def label_setup(self):
         self.label_pipe = CTkLabel(self, text="Pipe", text_color="#FFFFFF", 
@@ -66,15 +84,17 @@ class ArbimonWindow(CTkFrame):
                                    hover_color="#63C132", width=300, height=50,
                                    command=self.start_download)
         self.start_download_btn.place(relx = 0.05, rely= 0.85, anchor="w")
-        self.back_btn = CTkButton(self, text="Volver", fg_color="transparent", 
+        self.back_btn = CTkButton(self, text="", fg_color="transparent", 
                                 hover_color="#272B2B", command=self.on_back,
-                                width=33, height=33)
+                                width=33, height=33, image=self.img_arrow)
         self.back_btn.place(relx=0.02, rely=0.05, anchor="w")
         self.select_folder_btn = CTkButton(self, text="Seleccionar Carpeta",font=("Inter", 18), fg_color="#63C132", 
                                    hover_color="#63C132", width=200, height=50,
                                    command=self.select_folder)
         self.select_folder_btn.place(relx=0.05, rely=0.2, anchor="w")
 
+    def on_back(self):
+        self.controller.show_frame("PipeSoundWelcome")
 
     def get_selected_sites(self):
         selected = []

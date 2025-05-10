@@ -1,6 +1,6 @@
 from customtkinter import *
 from tkinter import filedialog, messagebox
-import os
+
 import sys
 import threading
 from os import path

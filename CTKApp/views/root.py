@@ -4,6 +4,8 @@ from .welcome_app import PipeSoundWelcome
 from .audio_analyzer import AudioAnalyzer
 from .terminal import TerminalWindow
 from utils.app_logger import set_logger
+from .violin_Charts_Window import ViolinChartWindow
+
 
 class Root(CTk):
     def __init__(self):
@@ -31,7 +33,7 @@ class Root(CTk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (ArbimonWindow, PipeSoundWelcome, AudioAnalyzer):
+        for F in (ArbimonWindow, PipeSoundWelcome, AudioAnalyzer, ViolinChartWindow):
             frame = F(parent=container, controller=self)
             self.frames[F.__name__] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -42,4 +44,6 @@ class Root(CTk):
         frame = self.frames[name]
         if kwargs:
             frame.receive_data(**kwargs)
+        if name == "ArbimonWindow":
+            frame.load_up()
         frame.tkraise()
