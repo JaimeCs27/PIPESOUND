@@ -21,7 +21,7 @@ class ArbimonWindow(CTkFrame):
         self.folder = ""
 
         
-        self.selection_setup()
+        
         self.loading_setup()
 
         self.site_checkboxes = {}  # Guardará los CheckBox para cada sitio
@@ -59,6 +59,7 @@ class ArbimonWindow(CTkFrame):
 
     def load_up(self):
         self.load_projects()
+        self.selection_setup()
 
     def label_setup(self):
         self.label_pipe = CTkLabel(self, text="Pipe", text_color="#FFFFFF", 

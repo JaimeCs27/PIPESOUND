@@ -66,7 +66,7 @@ class ArbimonModule:
     def Download_Site(self, site, folder_path, start, end):
         if self.client == None:
             raise Exception("Client not found")
-        self.client.download_segments(site["id"],folder_path, start, end, file_ext="flac")
+        self.client.download_segments(site["id"],folder_path, start, end, file_ext="flac", parallel=False)
 
     
     def Create_folder_for_project(self, full_path):
