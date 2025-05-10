@@ -1,2 +1,2 @@
-cd app
+cd CTkApp
 python main.py 

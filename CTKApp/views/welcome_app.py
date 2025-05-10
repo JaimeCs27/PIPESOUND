@@ -6,6 +6,7 @@ import sys
 from os import path
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 from controllers.progress import load_last_processed_data, reset_progress
+from utils.app_logger import log
 
 class PipeSoundWelcome(CTkFrame):
     def __init__(self, parent, controller):

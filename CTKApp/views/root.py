@@ -2,7 +2,8 @@ from customtkinter import *
 from .arbimon_window import ArbimonWindow
 from .welcome_app import PipeSoundWelcome
 from .audio_analyzer import AudioAnalyzer
-
+from .terminal import TerminalWindow
+from utils.app_logger import set_logger
 
 class Root(CTk):
     def __init__(self):
@@ -17,6 +18,11 @@ class Root(CTk):
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
+
+        self.terminal = TerminalWindow(self)
+        self.terminal.geometry("+50+50")
+
+        set_logger(self.terminal.append_text)
 
         container = CTkFrame(self)
         container.grid(row=0, column=0, sticky="nsew")  

@@ -7,7 +7,6 @@ from os import path
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 from controllers.arbimonModule import ArbimonModule
 
-
 class ArbimonWindow(CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)

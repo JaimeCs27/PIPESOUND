@@ -232,15 +232,3 @@ class AudioAnalyzer(CTkFrame):
 
     def on_back(self):
         self.controller.show_frame("PipeSoundWelcome")
-
-# def on_folder_selected(folder_path):
-#     global app, welcome_app
-#     if welcome_app:
-#         welcome_app.withdraw()
-#     app = AudioAnalyzer(folder_path)
-#     if app.last_file:
-#         app.run_indices()
-    
-    
-    
-#     app.mainloop()

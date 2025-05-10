@@ -12,7 +12,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from .acoustic_index import *
 
 
-
 PROGRESS_PATH = path.join(path.dirname(__file__), '..', 'views', 'temp_audio_files')
 
 
