@@ -89,14 +89,13 @@ class ViolinChartWindow(CTkFrame):
         if self.index_menu is None:
             self.index_menu = CTkOptionMenu(
                 self, values=self.index_columns,
-                width=200, height=40, font=("Inter", 15)
+                width=200, height=40, font=("Inter", 15), fg_color="#272B2B", button_color="#272B2B", button_hover_color="#ACBAB6"
             )
             self.index_menu.place(relx=0.05, rely=0.25, anchor="w")
         else:
             self.index_menu.configure(values=self.index_columns)
-            self.index_menu.set(self.index_columns[0])  # Reiniciar a primer valor
+            self.index_menu.set(self.index_columns[0]) 
 
-        # Crear o actualizar botón
         if self.plot_btn is None:
             self.plot_btn = CTkButton(
                 self, text="Graficar índice", font=("Inter", 18),
