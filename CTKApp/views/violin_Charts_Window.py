@@ -6,7 +6,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 from controllers.CSV import CSV
-import math
 
 
 
