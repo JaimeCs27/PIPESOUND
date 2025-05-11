@@ -20,6 +20,9 @@ class ViolinChartWindow(CTkFrame):
         self.setup_btn()
         self.csv = None
         self.index_buttons = []
+        self.index_columns = []
+        self.index_menu = None
+        self.plot_btn = None
 
 
     def _load_images(self):
@@ -76,40 +79,54 @@ class ViolinChartWindow(CTkFrame):
     def create_csv(self, file):
         self.csv = CSV(file)
         df = self.csv.to_dataframe()
-        
-        for btn in self.index_buttons:
-            btn.destroy()
-        self.index_buttons.clear()
 
         self.index_columns = [col for col in df.columns if col not in ['project_name', 'site', 'date', 'time', 'filename']]
-        print("Índices disponibles:", self.index_columns)
-
-        for i, index in enumerate(self.index_columns):
-            btn = CTkButton(
-                self, text=f"{index.replace("_", " ")}", font=("Inter", 15),
-                fg_color="#63C132", hover_color="#63C132",
-                width=200, height=40,
-                command=lambda idx=index: self.plot_violin_chart(idx)
-            )
-            btn.place(relx=0.05, rely=0.35 + i * 0.1, anchor="w")
-            self.index_buttons.append(btn)
-
-
-
-    def plot_violin_chart(self, index):
-        if self.csv is None:
-            print("No hay CSV cargado")
+        if not self.index_columns:
+            print("No se encontraron índices válidos.")
             return
 
+        # Crear o actualizar dropdown menu
+        if self.index_menu is None:
+            self.index_menu = CTkOptionMenu(
+                self, values=self.index_columns,
+                width=200, height=40, font=("Inter", 15)
+            )
+            self.index_menu.place(relx=0.05, rely=0.25, anchor="w")
+        else:
+            self.index_menu.configure(values=self.index_columns)
+            self.index_menu.set(self.index_columns[0])  # Reiniciar a primer valor
+
+        # Crear o actualizar botón
+        if self.plot_btn is None:
+            self.plot_btn = CTkButton(
+                self, text="Graficar índice", font=("Inter", 18),
+                fg_color="#63C132", hover_color="#63C132",
+                width=200, height=50, command=self.plot_violin_chart
+            )
+            self.plot_btn.place(relx=0.05, rely=0.35, anchor="w")
+        else:
+            self.plot_btn.configure(state="normal")
+
+
+
+
+    def plot_violin_chart(self):
+        if self.csv is None or self.index_menu is None:
+            print("No hay CSV cargado o menú no disponible.")
+            return
+
+        selected_index = self.index_menu.get()
         df = self.csv.to_dataframe()
-        if index not in df.columns:
-            print(f"Índice '{index}' no encontrado en el CSV")
+
+        if selected_index not in df.columns:
+            print(f"Índice '{selected_index}' no encontrado.")
             return
 
         plt.figure(figsize=(10, 6))
-        sns.violinplot(x="site", y=index, data=df, inner="box", palette="Set2")
-        plt.title(f"Distribución del índice '{index}' por site")
+        sns.violinplot(x="site", y=selected_index, data=df, inner="box", palette="Set2")
+        plt.title(f"Distribución del índice '{selected_index}' por site")
         plt.xlabel("Site")
-        plt.ylabel(index)
+        plt.ylabel(selected_index)
         plt.tight_layout()
         plt.show()
+
