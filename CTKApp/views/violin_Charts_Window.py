@@ -19,6 +19,8 @@ class ViolinChartWindow(CTkFrame):
         self.setup_labels()
         self.setup_btn()
         self.csv = None
+        self.index_buttons = []
+
 
     def _load_images(self):
         try:
@@ -65,38 +67,49 @@ class ViolinChartWindow(CTkFrame):
             return
         self.file_label.configure(text=file)
         self.create_csv(file)
-        self.plot_btn = CTkButton(self, text="Graficar Violin Plot", font=("Inter", 18),
-                          fg_color="#63C132", hover_color="#63C132",
-                          width=200, height=50, command=self.plot_violin_chart)
-        self.plot_btn.place(relx=0.05, rely=0.25, anchor="w")
 
 
     def on_back(self):
         self.controller.show_frame("PipeSoundWelcome")
 
+    
     def create_csv(self, file):
         self.csv = CSV(file)
-        print(self.csv.indices_in_file())
+        df = self.csv.to_dataframe()
+        
+        for btn in self.index_buttons:
+            btn.destroy()
+        self.index_buttons.clear()
+
+        self.index_columns = [col for col in df.columns if col not in ['project_name', 'site', 'date', 'time', 'filename']]
+        print("Índices disponibles:", self.index_columns)
+
+        for i, index in enumerate(self.index_columns):
+            btn = CTkButton(
+                self, text=f"{index.replace("_", " ")}", font=("Inter", 15),
+                fg_color="#63C132", hover_color="#63C132",
+                width=200, height=40,
+                command=lambda idx=index: self.plot_violin_chart(idx)
+            )
+            btn.place(relx=0.05, rely=0.35 + i * 0.1, anchor="w")
+            self.index_buttons.append(btn)
 
 
-    def plot_violin_chart(self):
+
+    def plot_violin_chart(self, index):
         if self.csv is None:
             print("No hay CSV cargado")
             return
 
         df = self.csv.to_dataframe()
-
-        index_columns = [col for col in df.columns if col not in ['project_name', 'site', 'date', 'time', 'filename']]
-        if not index_columns:
-            print("No se encontraron índices para graficar")
+        if index not in df.columns:
+            print(f"Índice '{index}' no encontrado en el CSV")
             return
 
-        for index in index_columns:
-            plt.figure(figsize=(10, 6))
-            sns.violinplot(x="site", y=index, data=df, inner="box", palette="Set2")
-            plt.title(f"Distribución del índice '{index}' por sitio")
-            plt.xlabel("Sitio")
-            plt.ylabel(index)
-            plt.tight_layout()
-
+        plt.figure(figsize=(10, 6))
+        sns.violinplot(x="site", y=index, data=df, inner="box", palette="Set2")
+        plt.title(f"Distribución del índice '{index}' por site")
+        plt.xlabel("Site")
+        plt.ylabel(index)
+        plt.tight_layout()
         plt.show()
