@@ -1,5 +1,6 @@
 import csv
 from .acoustic_index import Index
+import pandas as pd
 
 
 class Audio():
@@ -58,3 +59,13 @@ class CSV():
             for site_name, audios_dict in site_dict.items():
                 audios = list(audios_dict.values())
                 self.sites.append(Site(site_name, audios))
+
+    def to_dataframe(self):
+        data = []
+        for site in self.sites:
+            for audio in site.audios:
+                row = {"site": site.name, "filename": audio.name}
+                for index in audio.indices:
+                    row[index.name] = float(index.main_value)
+                data.append(row)
+        return pd.DataFrame(data)

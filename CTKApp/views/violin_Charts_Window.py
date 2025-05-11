@@ -2,8 +2,12 @@ from customtkinter import *
 from tkinter import filedialog
 from os import path
 from PIL import Image
+import seaborn as sns
+import matplotlib.pyplot as plt
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 from controllers.CSV import CSV
+import math
+
 
 
 class ViolinChartWindow(CTkFrame):
@@ -28,7 +32,6 @@ class ViolinChartWindow(CTkFrame):
             self.img_arrow = None
 
     def setup_labels(self):
-        # Logo PipeSound (igual que en tu ventana principal)
         self.label_pipe = CTkLabel(self, text="Pipe", text_color="#FFFFFF", 
                                  fg_color="transparent", font=("Inter", 30), 
                                  anchor="w", width=67, height=34)
@@ -62,6 +65,11 @@ class ViolinChartWindow(CTkFrame):
             return
         self.file_label.configure(text=file)
         self.create_csv(file)
+        self.plot_btn = CTkButton(self, text="Graficar Violin Plot", font=("Inter", 18),
+                          fg_color="#63C132", hover_color="#63C132",
+                          width=200, height=50, command=self.plot_violin_chart)
+        self.plot_btn.place(relx=0.05, rely=0.25, anchor="w")
+
 
     def on_back(self):
         self.controller.show_frame("PipeSoundWelcome")
@@ -69,3 +77,26 @@ class ViolinChartWindow(CTkFrame):
     def create_csv(self, file):
         self.csv = CSV(file)
         print(self.csv.indices_in_file())
+
+
+    def plot_violin_chart(self):
+        if self.csv is None:
+            print("No hay CSV cargado")
+            return
+
+        df = self.csv.to_dataframe()
+
+        index_columns = [col for col in df.columns if col not in ['project_name', 'site', 'date', 'time', 'filename']]
+        if not index_columns:
+            print("No se encontraron índices para graficar")
+            return
+
+        for index in index_columns:
+            plt.figure(figsize=(10, 6))
+            sns.violinplot(x="site", y=index, data=df, inner="box", palette="Set2")
+            plt.title(f"Distribución del índice '{index}' por sitio")
+            plt.xlabel("Sitio")
+            plt.ylabel(index)
+            plt.tight_layout()
+
+        plt.show()
