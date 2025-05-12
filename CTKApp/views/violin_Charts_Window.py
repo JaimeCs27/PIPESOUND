@@ -20,6 +20,7 @@ class ViolinChartWindow(CTkFrame):
         self.csv = None
         self.index_buttons = []
         self.index_columns = []
+        self.display_to_real_index = {}
         self.index_menu = None
         self.plot_btn = None
 
@@ -84,16 +85,27 @@ class ViolinChartWindow(CTkFrame):
             print("No se encontraron índices válidos.")
             return
 
-        # Crear o actualizar dropdown menu
+        # Crear diccionario: nombre con espacios → nombre real
+        self.display_to_real_index = {col.replace("_", " "): col for col in self.index_columns}
+        display_names = list(self.display_to_real_index.keys())
+
+        # Crear o actualizar dropdown
         if self.index_menu is None:
             self.index_menu = CTkOptionMenu(
-                self, values=self.index_columns,
-                width=200, height=40, font=("Inter", 15), fg_color="#272B2B", button_color="#272B2B", button_hover_color="#ACBAB6"
+                self,
+                values=display_names,
+                width=200,
+                height=40,
+                font=("Inter", 15),
+                fg_color="#272B2B",
+                button_color="#272B2B",
+                button_hover_color="#ACBAB6",
+                text_color="#FFFFFF"
             )
             self.index_menu.place(relx=0.05, rely=0.25, anchor="w")
         else:
-            self.index_menu.configure(values=self.index_columns)
-            self.index_menu.set(self.index_columns[0]) 
+            self.index_menu.configure(values=display_names)
+        self.index_menu.set(display_names[0]) 
 
         if self.plot_btn is None:
             self.plot_btn = CTkButton(
@@ -106,25 +118,26 @@ class ViolinChartWindow(CTkFrame):
             self.plot_btn.configure(state="normal")
 
 
-
-
     def plot_violin_chart(self):
         if self.csv is None or self.index_menu is None:
             print("No hay CSV cargado o menú no disponible.")
             return
 
-        selected_index = self.index_menu.get()
-        df = self.csv.to_dataframe()
+        selected_display = self.index_menu.get()
+        real_index = self.display_to_real_index.get(selected_display)
 
-        if selected_index not in df.columns:
-            print(f"Índice '{selected_index}' no encontrado.")
+        if real_index is None:
+            print(f"Índice '{selected_display}' no encontrado en el mapeo.")
             return
 
+        df = self.csv.to_dataframe()
+
         plt.figure(figsize=(10, 6))
-        sns.violinplot(x="site", y=selected_index, data=df, inner="box", palette="Set2")
-        plt.title(f"Distribución del índice '{selected_index}' por site")
+        sns.violinplot(x="site", y=real_index, data=df, inner="box", palette="Set2")
+        plt.title(f"Distribución del índice '{selected_display}' por site")
         plt.xlabel("Site")
-        plt.ylabel(selected_index)
+        plt.ylabel(selected_display)
         plt.tight_layout()
         plt.show()
+
 
