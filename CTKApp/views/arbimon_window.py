@@ -1,9 +1,9 @@
 from customtkinter import *
 from tkinter import filedialog, messagebox
 from PIL import Image
-import os
 import sys
 import threading
+import shutil
 from os import path
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 from controllers.arbimonModule import ArbimonModule
@@ -125,9 +125,67 @@ class ArbimonWindow(CTkFrame):
             self.after(0, lambda: messagebox.showinfo("Éxito", f"Descarga del proyecto '{project_name}' completada."))
         except Exception as e:
             print("Error al descargar el proyecto " + project_name + ": " + str(e))
-            self.after(0, lambda: messagebox.showerror("Error", f"Fallo al descargar '{project_name}': {e}"))
+            self.last_error = e
+            self.after(0, lambda: self.show_retry_dialog(self.last_error, sites, folder, project_name))
         finally:
             self.after(0, self.hide_progress_bar)
+
+    def show_retry_dialog(self, error, sites, folder, project_name):
+        retry = messagebox.askretrycancel(
+            "Error en la descarga",
+            f"Ocurrió un error durante la descarga:\n\n{str(error)}\n\n"
+            "¿Desea reintentar desde el último archivo descargado?\n"
+            "(Cancelar borrará los archivos parcialmente descargados)",
+            icon='error'
+        )
+        
+        if retry:
+            # Retry the download
+            self.progress_bar.place(relx=0.05, rely=0.78, anchor="w")
+            self.progress_bar.start()
+            threading.Thread(
+                target=self.download_project_thread,
+                args=(sites, folder, project_name),
+                daemon=True
+            ).start()
+        else:
+            # Clean up partial downloads
+            self.cleanup_partial_downloads(folder, project_name)
+
+    def cleanup_partial_downloads(self, folder, project_name):
+        try:
+            target_path = os.path.join(folder, project_name)
+            temp_dir = os.path.join(folder, '.temp_downloads')
+            
+            # Primero eliminar archivos temporales si existen
+            if os.path.exists(temp_dir):
+                for filename in os.listdir(temp_dir):
+                    if filename.startswith(project_name):
+                        file_path = os.path.join(temp_dir, filename)
+                        try:
+                            if os.path.isfile(file_path):
+                                os.unlink(file_path)  # Borrar archivo
+                            elif os.path.isdir(file_path):
+                                shutil.rmtree(file_path)  # Borrar directorio
+                        except Exception as e:
+                            print(f"No se pudo eliminar {file_path}: {e}")
+
+            # Luego borrar el directorio principal (si existe)
+            if os.path.exists(target_path):
+                try:
+                    shutil.rmtree(target_path)  # Esto borra recursivamente
+                except PermissionError:
+                    # Intento alternativo para liberar archivos bloqueados
+                    import time
+                    time.sleep(1)  # Esperar 1 segundo
+                    shutil.rmtree(target_path, ignore_errors=True)
+
+            messagebox.showinfo("Operación cancelada", 
+                            "Se han eliminado los archivos parcialmente descargados.")
+            
+        except Exception as e:
+            messagebox.showerror("Error de limpieza", 
+                            f"No se pudieron eliminar todos los archivos:\n{str(e)}")
 
     def hide_progress_bar(self):
         self.progress_bar.stop()
