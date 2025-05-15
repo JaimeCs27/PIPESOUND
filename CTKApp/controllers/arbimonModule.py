@@ -47,11 +47,12 @@ class ArbimonModule:
     def Download_Project(self, sites, folder_path, project_name, start=datetime.datetime(1930, 1, 1), end=datetime.datetime.today()):
         full_path = folder_path +"/"+ project_name
         self.Create_folder_for_project(full_path)
-        for site in sites:            
+        for site in sites:
             try:
                 self.Download_Site(site, full_path, start, end)
             except Exception as e:
                 print("Error while downloading site " + site["name"] + ": " + str(e))
+                raise Exception(f"Error downloading site {site['name']} ({site['id']}): {str(e)}") from e
 
     '''
     Esta funcion se encarga de descargar los audios de un site en una carpeta local
@@ -64,9 +65,12 @@ class ArbimonModule:
         No posee
     '''
     def Download_Site(self, site, folder_path, start, end):
-        if self.client == None:
-            raise Exception("Client not found")
-        self.client.download_segments(site["id"],folder_path, start, end, file_ext="flac", parallel=False)
+        try:
+            if self.client == None:
+                raise Exception("Client not found")
+            self.client.download_segments(site["id"],folder_path, start, end, file_ext="flac")
+        except Exception as e:
+            raise Exception(f"Download interrupted for site {site["id"]}") from e
 
     
     def Create_folder_for_project(self, full_path):
