@@ -11,6 +11,7 @@ from utils.app_logger import log
 class PipeSoundWelcome(CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
+        self.configure(fg_color="#272B2B")
         self.controller = controller
         
         # Logo PipeSound (igual que en tu ventana principal)

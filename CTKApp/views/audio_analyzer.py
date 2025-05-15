@@ -20,11 +20,26 @@ INDICES = ['Acoustic_Complexity_Index', 'Acoustic_Diversity_Index',
                'Acoustic_Evenness_Index', 'Bio_acoustic_Index', 'Normalized_Difference_Sound_Index', 'Spectral_Entropy',
                'NB_peaks', 'Temporal_Entropy', 'Wave_Signal_To_Noise_Ratio']
 
+INDEX_COLORS = {
+    "Acoustic_Complexity_Index": "#9EE37D",              # Diversidad acústica
+    "Acoustic_Diversity_Index": "#9EE37D",                # Diversidad acústica
+    "Acoustic_Evenness_Index": "#9EE37D",                 # Diversidad acústica
+    "Bio_acoustic_Index": "#87B38D",                      # Energía/intensidad
+    "Normalized_Difference_Sound_Index": "#87B38D",       # Energía/intensidad
+    "Wave_Signal_To_Noise_Ratio": "#87B38D",              # Energía/intensidad
+    "Spectral_Entropy": "#E2E8CE",                        # Complejidad espectral/temporal
+    "Temporal_Entropy": "#E2E8CE",                        # Complejidad espectral/temporal
+    "NB_peaks": "#D0FFD6",                                # Índice estructural/eventos
+}
+
+
+
 class AudioAnalyzer(CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
         self.SELECTED_FOLDER = ""
+        self.configure(fg_color="#272B2B")  
         self.bg_color = "#272B2B"
         self._create_widgets()
         self.last_file = load_last_processed_data()
@@ -124,14 +139,14 @@ class AudioAnalyzer(CTkFrame):
 
     def _create_checkboxes(self):
         self.checkbox_list = []
-        
+
         # Select All checkbox
         self.select_all_checkbox = CTkCheckBox(self, text="Seleccionar Todos", 
-                                             font=("Inter", 20), text_color="#FFFFFF", 
-                                             border_color="#9EE37D", fg_color="#9EE37D", 
-                                             hover_color="#9EE37D", bg_color="#272B2B", 
-                                             checkmark_color="#272B2B", 
-                                             command=self.toggle_all_checkboxes)
+                                            font=("Inter", 20), text_color="#FFFFFF", 
+                                            border_color="#9EE37D", fg_color="#9EE37D", 
+                                            hover_color="#9EE37D", bg_color="#272B2B", 
+                                            checkmark_color="#272B2B", 
+                                            command=self.toggle_all_checkboxes)
         self.select_all_checkbox.place(x=67, y=75)
 
         # Scrollable panel with indices
@@ -141,21 +156,24 @@ class AudioAnalyzer(CTkFrame):
         panel_scroll.place(x=50, y=100)
 
         for i, index in enumerate(INDICES):
-            container = CTkFrame(panel_scroll, fg_color="#9EE37D", 
-                               width=451, height=49, corner_radius=7)
+            color = INDEX_COLORS.get(index, "#9EE37D")  # Default a verde si no se encuentra
+
+            container = CTkFrame(panel_scroll, fg_color=color, 
+                                width=451, height=49, corner_radius=7)
             container.pack(pady=5)
 
-            CTkLabel(container, text=index, font=("Inter", 20), 
-                    text_color="#525656", anchor="w", width=400, 
+            CTkLabel(container, text=index.replace("_", " "), font=("Inter", 20), 
+                    text_color="#272B2B", anchor="w", width=400, 
                     height=45, fg_color="transparent").place(x=10, y=0)
 
-            checkbox = CTkCheckBox(container, text=None, border_color="#525656",
-                                 fg_color="#525656", hover_color="#525656",
-                                 bg_color="#9EE37D", checkmark_color="#9EE37D",
-                                 corner_radius=15, width=30, height=28)
+            checkbox = CTkCheckBox(container, text=None, border_color="#272B2B",
+                                fg_color="#272B2B", hover_color="#272B2B",
+                                bg_color=color, checkmark_color=color,
+                                corner_radius=15, width=30, height=28)
             checkbox.place(x=410, y=10)
 
             self.checkbox_list.append((checkbox, i))
+
 
     def toggle_all_checkboxes(self):
         for cb, _ in self.checkbox_list:
