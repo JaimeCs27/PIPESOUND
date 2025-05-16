@@ -70,7 +70,7 @@ class ArbimonModule:
                 raise Exception("Client not found")
             self.client.download_segments(site["id"],folder_path, start, end, file_ext="flac")
         except Exception as e:
-            raise Exception(f"Download interrupted for site {site["id"]}") from e
+            raise Exception(f"Download interrupted for site {site['id']}") from e
 
     
     def Create_folder_for_project(self, full_path):
