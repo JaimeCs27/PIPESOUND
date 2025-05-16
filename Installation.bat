@@ -53,7 +53,7 @@ echo === Verificando pip...
 pip --version >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
     echo pip ya está disponible globalmente.
-    pip install customtkinter pillow scipy numpy pyyaml soundfile matplotlib seaborn rfcx-0.3.1-py3-none-any.whl
+    pip install customtkinter pillow scipy numpy pyyaml soundfile matplotlib seaborn
     goto end
 )
 
@@ -61,7 +61,7 @@ if %ERRORLEVEL% EQU 0 (
 if exist "%PIP_PATH%" (
     echo pip está disponible en: %PIP_PATH%
     "%PIP_PATH%" --version
-    pip install customtkinter pillow scipy numpy pyyaml soundfile matplotlib seaborn rfcx-0.3.1-py3-none-any.whl
+    pip install customtkinter pillow scipy numpy pyyaml soundfile matplotlib seaborn
     goto end
 )
 
@@ -74,7 +74,7 @@ echo ⚠️ pip no está instalado. Intentando instalar...
 if exist "%PIP_PATH%" (
     echo pip fue instalado exitosamente.
     "%PIP_PATH%" --version
-    pip install customtkinter pillow scipy numpy pyyaml soundfile matplotlib seaborn rfcx-0.3.1-py3-none-any.whl
+    pip install customtkinter pillow scipy numpy pyyaml soundfile matplotlib seaborn
 ) else (
     echo pip no se pudo instalar.
 )

@@ -1,0 +1,5 @@
+test.py
+*.textgrid
+*.wav
+*.txt
+*.csv

@@ -1,4 +1,4 @@
-import rfcx
+from .rfcx import client
 import datetime
 from os import makedirs
 
@@ -10,7 +10,7 @@ class ArbimonModule:
     Esta función se encarga de autenticar el usuario de arbimon y crea el cliente
     '''
     def Authenticate(self):
-        self.client = rfcx.Client()
+        self.client = client.Client()
         self.client.authenticate()
 
     '''
