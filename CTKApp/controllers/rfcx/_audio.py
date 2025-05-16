@@ -10,6 +10,7 @@ import _api_rfcx as api_rfcx
 import threading
 import tempfile
 import json
+from requests.exceptions import ReadTimeout
 
 
 def __save_file(url, local_path, token, stop_flag):
@@ -20,28 +21,28 @@ def __save_file(url, local_path, token, stop_flag):
     }
     try:
         with requests.get(url, headers=headers, stream=True, timeout=10) as response:
-            for chunk in response.iter_content(chunk_size=8192):
-                if stop_flag.is_set():
-                    print("Download cancelled")
-                    break
-                # Process chunk here
+            if response.status_code == 200:
+                with open(local_path, 'wb') as out_file:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if stop_flag.is_set():
+                            print("Download cancelled")
+                            break
+                        if chunk:
+                            out_file.write(chunk)
+                    print(f'Saved {local_path}')
+            else:
+                print('Cannot download', url)
+                try:
+                    reason = response.json()
+                    print('Reason:', response.status_code, reason.get('message', 'No message'))
+                except:
+                    print('Reason:', response.status_code)
+    except ReadTimeout as e:
+        print(f"Timeout downloading {url}. Ignoring and continue.")
     except Exception as e:
         stop_flag.set()
+        print(e)
         raise Exception(f"Network error when accessing {url}: {e}")
-
-    if response.status_code == 200:
-        with open(local_path, 'wb') as out_file:
-            response.raw.decode_content = True
-            shutil.copyfileobj(response.raw, out_file)
-            print(f'Saved {local_path}')
-    else:
-        print('Cannot download', url)
-        reason = response.json()
-        print('Reason:', response.status_code, reason['message'])
-        raise Exception(
-            f"Failed to download from {url}. "
-            f"Status code: {response.status_code}. Reason: {reason['message']}"
-        )
 
 
 def __local_audio_file_path(path, audio_name, audio_extension):
@@ -89,6 +90,9 @@ def __download_segment(token, save_path, stream_id, start_str, file_ext, stop_fl
     try:
         __save_file(url, local_path, token, stop_flag)
     except Exception as e:
+        print(str(e))
+        if str(e) == "The content for this response was already consumed":
+            return
         raise Exception(f"Network error while downloading segment {start_str}: {e}") from e
     return local_path
 

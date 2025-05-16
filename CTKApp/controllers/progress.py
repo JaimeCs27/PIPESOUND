@@ -2,7 +2,6 @@ import json
 import threading
 import multiprocessing as mp
 import time
-import sys
 import os
 import soundfile as sf
 from scipy import signal
