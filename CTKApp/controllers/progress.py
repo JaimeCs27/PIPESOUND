@@ -16,7 +16,7 @@ PROGRESS_PATH = path.join(path.dirname(__file__), '..', 'views', 'temp_audio_fil
 
 
 class Process(mp.Process):
-    def __init__(self, id, full_path, rel_path, analizer, indices, temp_path, project_name, site):
+    def __init__(self, id, full_path, rel_path, analizer, indices, temp_path, project_name, site, stop_event):
         super(Process, self).__init__()
         self.full_path = full_path
         self.rel_path = rel_path
@@ -28,10 +28,15 @@ class Process(mp.Process):
         self.site = site
         self.counter = None
         self.lock = None
+        self.stop_event = stop_event
+        
         
     
     def run(self):
         try:
+            if self.stop_event.is_set():
+                reset_progress()
+                return
             file = AudioFile(self.full_path, True)
             self.analizer.process_audio_file(file, self.indices)
             self.analizer.create_temp_file(file, self.project_name, self.site, self.temp_path)
@@ -39,6 +44,9 @@ class Process(mp.Process):
             if self.counter and self.lock:
                 with self.lock:
                     self.counter.value += 1
+            if self.stop_event.is_set():
+                reset_progress()
+                return
         except Exception as e:
             print(f"Error procesando {self.full_path}: {e}")
 
@@ -114,11 +122,14 @@ def combine_temp_files_to_csv(temp_path, csv_path):
 
     print(f"Todos los archivos temporales se han combinado en {csv_path}.")
 
-def monitor_temp_files(update_callback, total_files, counter):
+def monitor_temp_files(update_callback, total_files, counter, stop_event):
     """
     Monitorea la cantidad de archivos en la carpeta temp_audio_files y actualiza el progreso usando el callback.
     """
     while True:
+        if stop_event and stop_event.is_set():
+            print("Monitoreo detenido.")
+            break
         with counter.get_lock():  # Asegura acceso seguro al contador
             current_count = counter.value
         if update_callback:
@@ -129,10 +140,14 @@ def monitor_temp_files(update_callback, total_files, counter):
             break
 
 
-def analize(base_dir, analizer, indices, csv_path, temp_path, resume_from=None, stop_flag=None, update_callback=None):
+def analize(base_dir, analizer, indices, csv_path, temp_path, resume_from=None, stop_event=None, update_callback=None):
     """Analiza los archivos de audio en base_dir y actualiza el progreso inmediatamente."""
     resume = resume_from is not None
     should_skip = True
+    if stop_event and stop_event.is_set():
+        print("Análisis detenido antes de iniciar el proceso.")
+        return
+
     if not path.exists(temp_path):
         os.makedirs(temp_path)
     temp_files = [f for f in os.listdir(temp_path) if f.endswith('.txt')]
@@ -192,7 +207,7 @@ def analize(base_dir, analizer, indices, csv_path, temp_path, resume_from=None, 
     # Iniciar el monitor de archivos temporales
     monitor_thread = threading.Thread(
         target=monitor_temp_files,
-        args=(update_callback, total_files, counter),  # Pasa counter como argumento
+        args=(update_callback, total_files, counter, stop_event),  # Pasa counter como argumento
         daemon=True
     )
     monitor_thread.start()
@@ -203,7 +218,7 @@ def analize(base_dir, analizer, indices, csv_path, temp_path, resume_from=None, 
     # Este codigo es paralelo
     processes = []
     for i, (full_path, rel_path) in enumerate(all_wavs):
-        process = Process(i, full_path, rel_path, analizer, indices, temp_path, project_name, path.basename(path.dirname(full_path)))
+        process = Process(i, full_path, rel_path, analizer, indices, temp_path, project_name, path.basename(path.dirname(full_path)), stop_event)
         process.counter = counter
         process.lock = lock
         processes.append(process)
@@ -211,6 +226,16 @@ def analize(base_dir, analizer, indices, csv_path, temp_path, resume_from=None, 
 
     for process in processes:
         process.join()
+        if stop_event and stop_event.is_set():
+            print("Análisis detenido.")
+            for p in processes:
+                if p.is_alive():
+                    p.terminate()
+            break
+    if stop_event and stop_event.is_set():
+        print("Análisis detenido antes de completar.")
+        reset_progress()
+        return
 
     print("Todos los procesos paralelos han terminado.")
 

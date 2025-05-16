@@ -5,6 +5,7 @@ from os import path, walk, listdir
 import os
 import threading
 import time
+import multiprocessing as mp
 # Agrega la carpeta superior al path
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
@@ -43,6 +44,7 @@ class AudioAnalyzer(CTkFrame):
         self.bg_color = "#272B2B"
         self._create_widgets()
         self.last_file = load_last_processed_data()
+        self.stop_event = mp.Event()
 
     def receive_data(self, **kwargs):
         folder = kwargs.get("folder_path", "")
@@ -182,7 +184,7 @@ class AudioAnalyzer(CTkFrame):
     def run_indices(self):
         global STOP
         STOP = False
-
+        self.stop_event.clear()
         path_base = self.SELECTED_FOLDER
         total_files = self.count_items(path_base)
         self.lbl_progress.configure(text=f"Archivos Analizados: 0 de {total_files}")
@@ -205,7 +207,7 @@ class AudioAnalyzer(CTkFrame):
             temp_path = path.join(path.dirname(__file__), "temp_audio_files")
             analizer.set_headers(indices, csv_path)
             analize(path_base, analizer, indices, csv_path, temp_path, self.last_file,
-                   stop_flag=lambda: STOP,
+                   stop_event = self.stop_event,
                    update_callback=lambda current, total: self.update_progress(current, total_files))
             self.show_popup("¡El análisis ha terminado!")
 
@@ -238,6 +240,7 @@ class AudioAnalyzer(CTkFrame):
     def stop_analysis(self):
         global STOP
         STOP = True
+        self.stop_event.set()
         print("Análisis detenido por el usuario")
 
     def count_items(self, path_base):
