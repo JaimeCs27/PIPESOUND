@@ -246,7 +246,7 @@ class Analizer:
 
     def set_headers(self, indices, csv_path):
         if not path.exists(csv_path):
-            keys = 'project_name, site, date, time, filename,'
+            keys = 'project_name,site,date,time,filename,'
             for index in indices:
                 keys += (index + '_main_value,')
                 if index == 'Acoustic_Complexity_Index':
