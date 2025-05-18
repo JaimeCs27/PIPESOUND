@@ -22,15 +22,15 @@ INDICES = ['Acoustic_Complexity_Index', 'Acoustic_Diversity_Index',
                'NB_peaks', 'Temporal_Entropy', 'Wave_Signal_To_Noise_Ratio']
 
 INDEX_COLORS = {
-    "Acoustic_Complexity_Index": "#9EE37D",              # Diversidad acústica
-    "Acoustic_Diversity_Index": "#9EE37D",                # Diversidad acústica
-    "Acoustic_Evenness_Index": "#9EE37D",                 # Diversidad acústica
-    "Bio_acoustic_Index": "#87B38D",                      # Energía/intensidad
-    "Normalized_Difference_Sound_Index": "#87B38D",       # Energía/intensidad
-    "Wave_Signal_To_Noise_Ratio": "#87B38D",              # Energía/intensidad
-    "Spectral_Entropy": "#E2E8CE",                        # Complejidad espectral/temporal
-    "Temporal_Entropy": "#E2E8CE",                        # Complejidad espectral/temporal
-    "NB_peaks": "#D0FFD6",                                # Índice estructural/eventos
+    "Acoustic_Complexity_Index": "#9EE37D",
+    "Acoustic_Diversity_Index": "#9EE37D",
+    "Acoustic_Evenness_Index": "#9EE37D",
+    "Bio_acoustic_Index": "#9EE37D",
+    "Normalized_Difference_Sound_Index": "#87B38D",
+    "Wave_Signal_To_Noise_Ratio": "#87B38D",
+    "Spectral_Entropy": "#E2E8CE",
+    "Temporal_Entropy": "#E2E8CE",
+    "NB_peaks": "#D0FFD6",
 }
 
 
