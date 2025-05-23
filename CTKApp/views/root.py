@@ -44,6 +44,4 @@ class Root(CTk):
         frame = self.frames[name]
         if kwargs:
             frame.receive_data(**kwargs)
-        if name == "ArbimonWindow":
-            frame.load_up()
         frame.tkraise()

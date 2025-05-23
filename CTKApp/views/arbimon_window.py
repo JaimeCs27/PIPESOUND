@@ -21,7 +21,7 @@ class ArbimonWindow(CTkFrame):
         self.folder = ""
 
         
-        
+        self.selection_setup()    
         self.loading_setup()
 
         self.site_checkboxes = {}  # Guardará los CheckBox para cada sitio
@@ -58,6 +58,8 @@ class ArbimonWindow(CTkFrame):
         self.progress_bar.stop()
 
     def load_up(self):
+        self.btn_logout.configure(state="normal")
+        self.log_in.configure(state="disabled")
         self.load_projects()
         self.selection_setup()
 
@@ -93,6 +95,34 @@ class ArbimonWindow(CTkFrame):
                                    hover_color="#63C132", width=200, height=50,
                                    command=self.select_folder)
         self.select_folder_btn.place(relx=0.05, rely=0.2, anchor="w")
+        self.log_in = CTkButton(self, text="Log In",font=("Inter", 18), fg_color="#63C132", 
+                                   hover_color="#63C132", width=100, height=35, command=self.load_up, state="disabled")
+        self.log_in.place(relx=0.05, rely=0.12, anchor="w")
+        self.btn_logout = CTkButton(self, text="Log Out", 
+                                    font=("Inter", 18), fg_color="#AA4545", 
+                                    hover_color="#000000", width=100, height=35 ,
+                                    command=self.log_out
+                                    )
+        self.btn_logout.place(relx=0.17, rely=0.12, anchor="center")
+        if not os.path.exists(".rfcx_credentials"):
+            self.btn_logout.configure(state="disabled")
+            self.log_in.configure(state="normal")
+
+    def log_out(self):
+        credentials = ".rfcx_credentials"
+        if os.path.exists(credentials):
+            os.remove(credentials)
+            print("Logged Out")
+            self.projects = []
+            self.sites = []
+            self.folder = ""
+            self.site_checkboxes = {}
+            self.project_list.configure(values=["Need to log in"])
+            self.project_list.set("Need to log in")
+            self.btn_logout.configure(state="disabled")
+            self.log_in.configure(state="normal")
+        else:
+            print("You are not Log in")
 
     def on_back(self):
         self.controller.show_frame("PipeSoundWelcome")
