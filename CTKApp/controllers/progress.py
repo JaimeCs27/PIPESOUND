@@ -5,7 +5,8 @@ import time
 import os
 import soundfile as sf
 from scipy import signal
-from os import walk, path, remove
+from os import walk, path
+import librosa
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from .acoustic_index import *
@@ -47,7 +48,7 @@ class Process(mp.Process):
                 reset_progress()
                 return
         except Exception as e:
-            print(f"Error procesando {self.full_path}: {e}")
+            print(f"Error processing {self.full_path}: {e}")
 
 
 
@@ -57,7 +58,7 @@ def load_last_processed_data():
     if path.exists(PROGRESS_PATH):
         temp_files = [f for f in os.listdir(PROGRESS_PATH) if f.endswith('.txt')]
         if len(temp_files) == 0:
-            print("No hay archivos temporales para procesar.")
+            print("No temporary files found to process.")
             return None
         json_data = [f for f in os.listdir(PROGRESS_PATH) if f.endswith('.json')]
         print(json_data)
@@ -79,34 +80,36 @@ def reset_progress():
             os.remove(temp_file_path)
 
 def convert_to_wav(file_path):
-    if file_path.lower().endswith('.flac'):
+    ext = os.path.splitext(file_path)[1].lower()
+
+    if ext in ['.flac', '.mp3']:
         try:
-            data, samplerate = sf.read(file_path)
+            data, samplerate = librosa.load(file_path, sr=None)  # Preserve original sample rate
             wav_path = os.path.splitext(file_path)[0] + '.wav'
             sf.write(wav_path, data, samplerate)
-            print(f'Archivo convertido y guardado como: {wav_path}')
+            print(f'File converted and saved as: {wav_path}')
 
             os.remove(file_path)
-            print(f'Archivo .flac eliminado: {file_path}')
+            print(f'Original file deleted: {file_path}')
 
         except Exception as e:
-            print(f"Error al convertir {file_path}: {e}")
+            print(f"Error converting {file_path}: {e}")
 
 def combine_temp_files_to_csv(temp_path, csv_path):
     """
-    Combina todos los archivos .txt en temp_path en un único archivo CSV.
+    Combines all .txt files in temp_path into a single CSV file.
     """
     if not path.exists(temp_path):
-        print(f"La carpeta temporal {temp_path} no existe.")
+        print(f"The temporary folder {temp_path} does not exist.")
         return
 
     temp_files = [f for f in os.listdir(temp_path) if f.endswith('.txt')]
 
     if not temp_files:
-        print("No se encontraron archivos temporales para combinar.")
+        print("No temporary files found to combine.")
         return
 
-    # Crear encabezados si el archivo CSV no existe
+    # Create headers if the CSV file does not exist
     if not path.exists(csv_path):
         with open(csv_path, "w", newline="") as csv_file:
             csv_file.write("project_name,site,date,time,filename,indices\n")
@@ -119,32 +122,32 @@ def combine_temp_files_to_csv(temp_path, csv_path):
                 csv_file.write(temp.read())
             #print(f"Archivo {temp_file} unido al CSV.")
 
-    print(f"Todos los archivos temporales se han combinado en {csv_path}.")
+    print(f"All temporary files have been combined into {csv_path}.")
 
 def monitor_temp_files(update_callback, total_files, counter, stop_event):
     """
-    Monitorea la cantidad de archivos en la carpeta temp_audio_files y actualiza el progreso usando el callback.
+    Monitors the number of files in the temp_audio_files folder and updates the progress using the callback.
     """
     while True:
         if stop_event and stop_event.is_set():
-            print("Monitoreo detenido.")
+            print("Monitoring stopped.")
             break
-        with counter.get_lock():  # Asegura acceso seguro al contador
+        with counter.get_lock():  # Ensures safe access to the counter
             current_count = counter.value
         if update_callback:
             update_callback(current_count, total_files)
-        time.sleep(1.5)  # Esperar 0.5 segundos antes de volver a consultar
+        time.sleep(1.5)  # Wait for 1.5 seconds before checking again
         if current_count >= total_files:
-            print("Todos los archivos han sido procesados.")
+            print("All files have been processed.")
             break
 
 
 def analize(base_dir, analizer, indices, csv_path, temp_path, resume_from=None, stop_event=None, update_callback=None):
-    """Analiza los archivos de audio en base_dir y actualiza el progreso inmediatamente."""
+    """Analyzes the audio files in base_dir and updates the progress immediately."""
     resume = resume_from is not None
     should_skip = True
     if stop_event and stop_event.is_set():
-        print("Análisis detenido antes de iniciar el proceso.")
+        print("Analysis stopped before starting the process.")
         return
 
     if not path.exists(temp_path):
@@ -158,7 +161,7 @@ def analize(base_dir, analizer, indices, csv_path, temp_path, resume_from=None, 
                 resume_from = last_processed['file']
                 indices = last_processed['indices']
     else:
-        "Crear archivo indices.json"
+        # Create indices.json
         with open(path.join(temp_path, "temp_data.json"), 'w') as f:
             data = {
                 "indices": indices,
@@ -167,6 +170,7 @@ def analize(base_dir, analizer, indices, csv_path, temp_path, resume_from=None, 
             json.dump(data, f)
     all_wavs = []
     flac_files = []
+    supported_formats = ['.WAV', '.Flac', '.flac', '.FLAC', '.MP3', '.mp3']
 
     # Recopilar rutas de archivos .wav y .flac
     for root, _, files in walk(base_dir):
@@ -175,16 +179,19 @@ def analize(base_dir, analizer, indices, csv_path, temp_path, resume_from=None, 
             if filename.endswith('.wav'):
                 rel_path = path.relpath(full_path, base_dir)
                 all_wavs.append((full_path, rel_path))
-            elif filename.endswith('.flac'):
+            elif any(filename.endswith(ext) for ext in supported_formats):
                 flac_files.append(full_path)
+            else:
+                print(f"Format not supported: {filename}")
 
-    print(f"Archivos encontrados para procesar: {len(all_wavs)}")
 
-    # Convertir archivos .flac a .wav en paralelo
+    print(f"Files found to process: {len(all_wavs)}")
+
+    # Convert .flac files to .wav in parallel
     with ThreadPoolExecutor() as executor:
         executor.map(convert_to_wav, flac_files)
 
-    # Agregar archivos .wav nuevos generados por la conversión
+    # Add new .wav files generated by the conversion
     for flac_path in flac_files:
         wav_path = os.path.splitext(flac_path)[0] + '.wav'
         if path.exists(wav_path):
@@ -198,7 +205,7 @@ def analize(base_dir, analizer, indices, csv_path, temp_path, resume_from=None, 
     processed_count = 0
     total_files = len(all_wavs)
 
-    print(f"Total de archivos a procesar: {total_files}")
+    print(f"Total files to process: {total_files}")
 
     counter = mp.Value('i', 0)
     lock = mp.Lock()
@@ -214,7 +221,7 @@ def analize(base_dir, analizer, indices, csv_path, temp_path, resume_from=None, 
 
     project_name = path.basename(base_dir)
 
-    # Este codigo es paralelo
+    # This code is parallel
     processes = []
     for i, (full_path, rel_path) in enumerate(all_wavs):
         process = Process(i, full_path, rel_path, analizer, indices, temp_path, project_name, path.basename(path.dirname(full_path)), stop_event)
@@ -226,20 +233,20 @@ def analize(base_dir, analizer, indices, csv_path, temp_path, resume_from=None, 
     for process in processes:
         process.join()
         if stop_event and stop_event.is_set():
-            print("Análisis detenido.")
+            print("Analysis stopped.")
             for p in processes:
                 if p.is_alive():
                     p.terminate()
             break
     if stop_event and stop_event.is_set():
-        print("Análisis detenido antes de completar.")
+        print("Analysis stopped before completion.")
         reset_progress()
         return
 
-    print("Todos los procesos paralelos han terminado.")
+    print("All parallel processes have finished.")
 
-    # Unir temp files en un solo archivo CSV
+    # Combine temp files into a single CSV file
     combine_temp_files_to_csv(temp_path, csv_path)
 
-    # Eliminar archivos temporales
+    # Delete temporary files
     reset_progress()

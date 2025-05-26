@@ -57,9 +57,9 @@ class AudioAnalyzer(CTkFrame):
                 
 
     def _refresh_labels(self):
-        base = os.path.basename(self.SELECTED_FOLDER) or "Sin seleccionar"
-        self.lbl_project.configure(text=f"Proyecto: {base}")
-        self.lbl_location.configure(text=f"Ubicación: {self.SELECTED_FOLDER or '—'}")
+        base = os.path.basename(self.SELECTED_FOLDER) or "No selected folder"
+        self.lbl_project.configure(text=f"Project: {base}")
+        self.lbl_location.configure(text=f"Location: {self.SELECTED_FOLDER or '—'}")
 
 
     def _create_widgets(self):
@@ -78,9 +78,9 @@ class AudioAnalyzer(CTkFrame):
             self.img_run = CTkImage(Image.open(path.join(path.dirname(__file__), "icons\Run.png")))
             self.img_stop = CTkImage(Image.open(path.join(path.dirname(__file__), "icons\Stop.png")))
             if self.img_arrow and self.img_run and self.img_stop:
-                print("Imágenes cargadas correctamente")
+                print("Images loaded successfully")
             else:
-                print("Alguna imagen no se cargó correctamente.")
+                print("Some images failed to load.")
         except Exception as e:
             print(f"Error loading images: {e}")
             self.img_arrow = None
@@ -95,13 +95,13 @@ class AudioAnalyzer(CTkFrame):
         self.btn_back.place(x=51, y=19)
 
         # Run button
-        self.btn_run = CTkButton(self, text="Correr", font=("Inter", 36), 
+        self.btn_run = CTkButton(self, text="Run", font=("Inter", 36), 
                                fg_color="#63C132", hover_color="#63C132", 
                                command=self.run_indices, width=448, height=49, image=self.img_run)
         self.btn_run.place(x=79, y=627)
 
         # Stop button
-        self.btn_stop = CTkButton(self, text="Detener", font=("Inter", 36), 
+        self.btn_stop = CTkButton(self, text="Stop", font=("Inter", 36), 
                                 fg_color="#F21D1D", hover_color="#F21D1D", 
                                 command=self.stop_analysis, width=448, height=49, image=self.img_stop)
         self.btn_stop.place(x=659, y=627)
@@ -114,21 +114,21 @@ class AudioAnalyzer(CTkFrame):
                 font=("Inter", 30), anchor="w", width=112, height=34).place(x=1119, y=23)
 
         # Indices label
-        CTkLabel(self, text="Índices", text_color="#FFFFFF", fg_color="transparent", 
+        CTkLabel(self, text="Indixes", text_color="#FFFFFF", fg_color="transparent", 
                 font=("Inter", 32), width=115, height=38).place(x=245, y=31)
 
         # Project info labels
-        self.lbl_project = CTkLabel(self, text=f"Proyecto: {os.path.basename(self.SELECTED_FOLDER)}", 
+        self.lbl_project = CTkLabel(self, text=f"Project: {os.path.basename(self.SELECTED_FOLDER)}", 
                                   text_color="#FFFFFF", fg_color="transparent", 
                                   font=("Inter", 32), anchor="w", width=638, height=38)
         self.lbl_project.place(x=561, y=116)
 
-        self.lbl_location = CTkLabel(self, text=f"Ubicación: {self.SELECTED_FOLDER}", 
+        self.lbl_location = CTkLabel(self, text=f"Location: {self.SELECTED_FOLDER}", 
                                    text_color="#FFFFFF", fg_color="transparent", 
                                    font=("Inter", 24), anchor="w", width=638, height=38)
         self.lbl_location.place(x=561, y=187)
 
-        self.lbl_progress = CTkLabel(self, text="Archivos Analizados:", 
+        self.lbl_progress = CTkLabel(self, text="Processed Files:", 
                                    text_color="#FFFFFF", fg_color="transparent", 
                                    font=("Inter", 32), anchor="w", width=638, height=154)
         self.lbl_progress.place(x=554, y=283)
@@ -143,7 +143,7 @@ class AudioAnalyzer(CTkFrame):
         self.checkbox_list = []
 
         # Select All checkbox
-        self.select_all_checkbox = CTkCheckBox(self, text="Seleccionar Todos", 
+        self.select_all_checkbox = CTkCheckBox(self, text="Select All", 
                                             font=("Inter", 20), text_color="#FFFFFF", 
                                             border_color="#9EE37D", fg_color="#9EE37D", 
                                             hover_color="#9EE37D", bg_color="#272B2B", 
@@ -187,7 +187,7 @@ class AudioAnalyzer(CTkFrame):
         self.stop_event.clear()
         path_base = self.SELECTED_FOLDER
         total_files = self.count_items(path_base)
-        self.lbl_progress.configure(text=f"Archivos Analizados: 0 de {total_files}")
+        self.lbl_progress.configure(text=f"Processed Files: 0 out of {total_files}")
 
         
 
@@ -209,18 +209,18 @@ class AudioAnalyzer(CTkFrame):
             analize(path_base, analizer, indices, csv_path, temp_path, self.last_file,
                    stop_event = self.stop_event,
                    update_callback=lambda current, total: self.update_progress(current, total_files))
-            self.show_popup("¡El análisis ha terminado!")
+            self.show_popup("¡The analysis has finished!")
 
         threading.Thread(target=analysis_thread, daemon=True).start()
 
     def update_progress(self, current, total):
         if hasattr(self, 'lbl_progress') and hasattr(self, 'progressbar'):
-            self.lbl_progress.configure(text=f"Archivos Analizados: {current} de {total}")
+            self.lbl_progress.configure(text=f"Processed Files: {current} out of {total}")
             self.progressbar.set(current / total if total > 0 else 0)
 
     def show_popup(self, message):
         popup = CTkToplevel(self)
-        popup.title("¡Análisis Completo!")
+        popup.title("¡Analysis Completed!")
         popup.configure(fg_color="#272B2B")
         popup_width = 300
         popup_height = 200
@@ -231,7 +231,7 @@ class AudioAnalyzer(CTkFrame):
         CTkLabel(popup, text=message, text_color="#FFFFFF", 
                 font=("Inter", 20), anchor="center").place(relx=0.5, rely=0.4, anchor="center")
 
-        CTkButton(popup, text="Cerrar", font=("Inter", 16), 
+        CTkButton(popup, text="Close", font=("Inter", 16), 
                  command=popup.destroy).place(relx=0.5, rely=0.6, anchor="center")
 
         popup.focus_set()
@@ -241,13 +241,14 @@ class AudioAnalyzer(CTkFrame):
         global STOP
         STOP = True
         self.stop_event.set()
-        print("Análisis detenido por el usuario")
+        print("Analysis stopped by user")
 
     def count_items(self, path_base):
         count = 0
+        supported_extensions = ('.wav', '.flac', '.mp3')
         for root, dirs, files in walk(path_base):
             for file in files:
-                if file.lower().endswith('.wav') or file.lower().endswith('.flac'):
+                if file.lower().endswith(supported_extensions):
                     count += 1
         return count
 
