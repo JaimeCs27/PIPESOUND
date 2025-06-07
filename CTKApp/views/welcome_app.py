@@ -58,12 +58,19 @@ class PipeSoundWelcome(CTkFrame):
                                    command=self.seleccionar_carpeta)
         self.btn_carpeta.place(relx=0.5, rely=0.6, anchor="center")
 
-        # Botón Carpeta Local
+        # Botón Gráfico violin
         self.btn_carpeta = CTkButton(self, text="Analizar CSV", 
                                    font=("Inter", 18), fg_color="#63C132", 
                                    hover_color="#63C132", width=300, height=50,
                                    command=self.csv_window)
         self.btn_carpeta.place(relx=0.5, rely=0.7, anchor="center")
+
+        # Botón Gráfica de Calor
+        self.btn_carpeta = CTkButton(self, text="Gráfica de Calor", 
+                                   font=("Inter", 18), fg_color="#63C132", 
+                                   hover_color="#63C132", width=300, height=50,
+                                   command=self.heat_window)
+        self.btn_carpeta.place(relx=0.5, rely=0.8, anchor="center")
 
         self.last_file = load_last_processed_data()
         if self.last_file:
@@ -76,7 +83,6 @@ class PipeSoundWelcome(CTkFrame):
         #                              font=("Inter", 16))
         #self.label_creditos.place(relx=0.5, rely=0.85, anchor="center")
         
-        # Aquí podrías añadir logos de aliados si los tienes
 
 
     def seleccionar_proyecto_arbimon(self):
@@ -84,7 +90,10 @@ class PipeSoundWelcome(CTkFrame):
 
     def csv_window(self):
         self.controller.show_frame("ViolinChartWindow")
-    
+
+    def heat_window(self):
+        self.controller.show_frame("HeatMapWindow")
+
     def seleccionar_carpeta(self):
         carpeta = filedialog.askdirectory()
         if carpeta and self.contiene_audio(carpeta):

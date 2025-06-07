@@ -5,7 +5,7 @@ from .audio_analyzer import AudioAnalyzer
 from .terminal import TerminalWindow
 from utils.app_logger import set_logger
 from .violin_Charts_Window import ViolinChartWindow
-
+from .heat_Map_Window import HeatMapWindow
 
 class Root(CTk):
     def __init__(self):
@@ -33,7 +33,7 @@ class Root(CTk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (ArbimonWindow, PipeSoundWelcome, AudioAnalyzer, ViolinChartWindow):
+        for F in (ArbimonWindow, PipeSoundWelcome, AudioAnalyzer, ViolinChartWindow, HeatMapWindow):
             frame = F(parent=container, controller=self)
             self.frames[F.__name__] = frame
             frame.grid(row=0, column=0, sticky="nsew")

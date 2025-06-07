@@ -12,6 +12,7 @@ from controllers.CSV import CSV
 class ViolinChartWindow(CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
+        self.configure(fg_color="#272B2B")
 
         self.controller = controller
         self._load_images()
