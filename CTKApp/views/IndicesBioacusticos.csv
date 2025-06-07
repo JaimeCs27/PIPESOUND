@@ -1,7 +1,1 @@
-project_name,site,date,time,filename,Normalized_Difference_Sound_Index_main_value,NB_peaks_main_value,Wave_Signal_To_Noise_Ratio_main_value,
-site4,site4,2025-05-25,18:51:43,1.wav,0.991149869224854,4.0,20.878449031809136,
-site4,site4,2025-05-25,18:48:47,13.wav,0.9911192141505502,4.0,19.86518860254383,
-site4,site4,2025-05-25,18:48:47,14.wav,0.6482695674721554,0.0,21.868738919630765,
-site4,site4,2025-05-25,18:51:43,2.wav,0.6483881867806478,0.0,21.646824591278495,
-site4,site4,2025-05-25,17:48:01,original1.wav,0.9911192141505502,4.0,19.86518860254383,
-site4,site4,2025-05-25,17:48:01,original2.wav,0.6482695674721554,0.0,21.868738919630765,
+project_name,site,date,time,filename,Acoustic_Complexity_Index_main_value,Acoustic_Complexity_Index_min,Acoustic_Complexity_Index_max,Acoustic_Complexity_Index_mean,Acoustic_Complexity_Index_median,Acoustic_Complexity_Index_std,Acoustic_Complexity_Index_var,Acoustic_Diversity_Index_main_value,Acoustic_Evenness_Index_main_value,Bio_acoustic_Index_main_value,Normalized_Difference_Sound_Index_main_value,Spectral_Entropy_main_value,NB_peaks_main_value,Temporal_Entropy_main_value,Wave_Signal_To_Noise_Ratio_main_value,

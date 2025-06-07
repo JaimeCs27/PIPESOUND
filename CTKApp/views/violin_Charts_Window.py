@@ -29,12 +29,7 @@ class ViolinChartWindow(CTkFrame):
     def _load_images(self):
         try:
             self.img_arrow = CTkImage(Image.open(path.join(path.dirname(__file__), "icons\Arrow.png")))
-            if self.img_arrow:
-                print("Imágenes cargadas correctamente")
-            else:
-                print("Alguna imagen no se cargó correctamente.")
         except Exception as e:
-            print(f"Error loading images: {e}")
             self.img_arrow = None
 
     def setup_labels(self):
@@ -67,7 +62,7 @@ class ViolinChartWindow(CTkFrame):
             filetypes=[("Archivos CSV", "*.csv")]
         )
         if file == "":
-            print("No se seleccionó ningún archivo")
+            print("No file selected.")
             return
         self.file_label.configure(text=file)
         self.create_csv(file)
@@ -83,7 +78,7 @@ class ViolinChartWindow(CTkFrame):
 
         self.index_columns = [col for col in df.columns if col not in ['project_name', 'site', 'date', 'time', 'filename']]
         if not self.index_columns:
-            print("No se encontraron índices válidos.")
+            print("No valid indices found.")
             return
 
         # Crear diccionario: nombre con espacios → nombre real
@@ -121,14 +116,14 @@ class ViolinChartWindow(CTkFrame):
 
     def plot_violin_chart(self):
         if self.csv is None or self.index_menu is None:
-            print("No hay CSV cargado o menú no disponible.")
+            print("No CSV loaded or menu not available.")
             return
 
         selected_display = self.index_menu.get()
         real_index = self.display_to_real_index.get(selected_display)
 
         if real_index is None:
-            print(f"Índice '{selected_display}' no encontrado en el mapeo.")
+            print(f"Index '{selected_display}' not found in the mapping.")
             return
 
         df = self.csv.to_dataframe()

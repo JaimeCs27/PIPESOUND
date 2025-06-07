@@ -3,6 +3,7 @@ import threading
 import multiprocessing as mp
 import time
 import os
+import psutil
 import soundfile as sf
 from scipy import signal
 from os import walk, path
@@ -78,6 +79,53 @@ def reset_progress():
         for temp_file in temp_files:
             temp_file_path = path.join(PROGRESS_PATH, temp_file)
             os.remove(temp_file_path)
+
+def kill_all(processes, grace=0.5):
+    """
+    Mata *todo* el árbol de procesos que cuelga de la lista «processes».
+    1) SIGTERM  → chance de apagado limpio
+    2) espera ‹grace› segundos
+    3) SIGKILL / .kill() a lo que siga vivo
+    """
+    import signal, time, psutil, os
+
+    # ---- 1. Construir la lista [padres + descendientes] -----------------
+    proc_tree = []
+    for p in processes:
+        if not p.is_alive():
+            continue
+        try:
+            parent = psutil.Process(p.pid)
+            proc_tree.append(parent)
+            proc_tree.extend(parent.children(recursive=True))
+        except psutil.NoSuchProcess:
+            pass          # ya murió
+
+    if not proc_tree:
+        return            # nada que matar
+
+    # ---- 2. SIGTERM (terminate) a todos ---------------------------------
+    for pr in proc_tree:
+        try:
+            pr.terminate()
+        except psutil.NoSuchProcess:
+            pass
+
+    # ---- 3. Espera «grace» ---------------------------------------------
+    gone, alive = psutil.wait_procs(proc_tree, timeout=grace)
+
+    # ---- 4. SIGKILL / kill a lo que quede -------------------------------
+    for pr in alive:
+        try:
+            pr.kill()
+        except psutil.NoSuchProcess:
+            pass
+    psutil.wait_procs(alive, timeout=grace)
+
+    # ---- 5. join() a tus mp.Process para que no queden zombis -----------
+    for p in processes:
+        if p.is_alive():
+            p.join()
 
 def convert_to_wav(file_path):
     ext = os.path.splitext(file_path)[1].lower()
@@ -224,24 +272,40 @@ def analize(base_dir, analizer, indices, csv_path, temp_path, resume_from=None, 
     # This code is parallel
     processes = []
     for i, (full_path, rel_path) in enumerate(all_wavs):
+        if stop_event.is_set():                 # ← NUEVO
+            print("Analysis stopped aaaaaaaaaa.")
+            break  
         process = Process(i, full_path, rel_path, analizer, indices, temp_path, project_name, path.basename(path.dirname(full_path)), stop_event)
         process.counter = counter
         process.lock = lock
+        process.daemon = True
         processes.append(process)
         process.start()
 
-    for process in processes:
-        process.join()
-        if stop_event and stop_event.is_set():
-            print("Analysis stopped.")
-            for p in processes:
-                if p.is_alive():
-                    p.terminate()
+    # for process in processes:
+    #     process.join()
+    #     if stop_event and stop_event.is_set():
+    #         print("Analysis stopped.")
+    #         for p in processes:
+    #             if p.is_alive():
+    #                 p.terminate()
+    #         break
+
+    while True:
+        if stop_event.is_set():
+            print("Analysis stopped before completion.")
+            kill_all(processes, grace=0.5)
+            reset_progress()
+            return
+        if not any(p.is_alive() for p in processes):
             break
+        time.sleep(0.2)
+
     if stop_event and stop_event.is_set():
-        print("Analysis stopped before completion.")
+        print("Analysis stopped before completion. 2")
         reset_progress()
         return
+
 
     print("All parallel processes have finished.")
 

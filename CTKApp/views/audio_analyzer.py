@@ -209,7 +209,10 @@ class AudioAnalyzer(CTkFrame):
             analize(path_base, analizer, indices, csv_path, temp_path, self.last_file,
                    stop_event = self.stop_event,
                    update_callback=lambda current, total: self.update_progress(current, total_files))
-            self.show_popup("¡The analysis has finished!")
+            if self.stop_event.is_set():
+                print("Analysis was stopped by the user.")
+            else:
+                self.show_popup("¡The analysis has finished!")
 
         threading.Thread(target=analysis_thread, daemon=True).start()
 
