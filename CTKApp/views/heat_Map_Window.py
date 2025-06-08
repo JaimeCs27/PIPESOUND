@@ -6,6 +6,7 @@ from PIL import Image
 import seaborn as sns
 import pandas as pd
 import librosa
+import threading
 import matplotlib.pyplot as plt
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 from controllers.CSV import CSV
@@ -72,7 +73,9 @@ class HeatMapWindow(CTkFrame):
             print("No se seleccionó ninguna carpeta")
             return
         self.file_label.configure(text=folder)
-        self.process_folder(folder)
+
+        # Procesar la carpeta en un hilo aparte
+        threading.Thread(target=self.process_folder, args=(folder,), daemon=True).start()
 
 
     def on_back(self):
