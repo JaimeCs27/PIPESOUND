@@ -48,7 +48,15 @@ class PipeSoundWelcome(CTkFrame):
                                     hover_color="#63C132", width=300, height=50 ,
                                     command=self.seleccionar_proyecto_arbimon
                                     )
-        self.btn_arbimon.place(relx=0.5, rely=0.5, anchor="center")
+        self.btn_arbimon.place(relx=0.5, rely=0.4, anchor="center")
+
+        # Botón Birdnet
+        self.btn_birdnet = CTkButton(self, text="Modulo Birdnet", 
+                                    font=("Inter", 18), fg_color="#63C132", 
+                                    hover_color="#63C132", width=300, height=50 ,
+                                    command=self.birdnet_window
+                                    )
+        self.btn_birdnet.place(relx=0.5, rely=0.8, anchor="center")
 
 
         # Botón Carpeta Local
@@ -56,21 +64,21 @@ class PipeSoundWelcome(CTkFrame):
                                    font=("Inter", 18), fg_color="#63C132", 
                                    hover_color="#63C132", width=300, height=50,
                                    command=self.seleccionar_carpeta)
-        self.btn_carpeta.place(relx=0.5, rely=0.6, anchor="center")
+        self.btn_carpeta.place(relx=0.5, rely=0.5, anchor="center")
 
         # Botón Gráfico violin
         self.btn_carpeta = CTkButton(self, text="Analizar CSV", 
                                    font=("Inter", 18), fg_color="#63C132", 
                                    hover_color="#63C132", width=300, height=50,
                                    command=self.csv_window)
-        self.btn_carpeta.place(relx=0.5, rely=0.7, anchor="center")
+        self.btn_carpeta.place(relx=0.5, rely=0.6, anchor="center")
 
         # Botón Gráfica de Calor
         self.btn_carpeta = CTkButton(self, text="Gráfica de Calor", 
                                    font=("Inter", 18), fg_color="#63C132", 
                                    hover_color="#63C132", width=300, height=50,
                                    command=self.heat_window)
-        self.btn_carpeta.place(relx=0.5, rely=0.8, anchor="center")
+        self.btn_carpeta.place(relx=0.5, rely=0.7, anchor="center")
 
         self.last_file = load_last_processed_data()
         if self.last_file:
@@ -84,6 +92,8 @@ class PipeSoundWelcome(CTkFrame):
         #self.label_creditos.place(relx=0.5, rely=0.85, anchor="center")
         
 
+    def birdnet_window(self):
+        self.controller.show_frame("BirdnetWindow")
 
     def seleccionar_proyecto_arbimon(self):
         self.controller.show_frame("ArbimonWindow")
