@@ -20,6 +20,8 @@ class ArbimonWindow(CTkFrame):
         self.sites = []
         self.folder = ""
 
+        if os.path.exists(".rfcx_credentials"):        
+            self.load_projects()
         
         self.selection_setup()    
         self.loading_setup()
