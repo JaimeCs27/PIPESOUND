@@ -41,13 +41,13 @@ class BirdnetWindow(CTkFrame):
                                   fg_color="transparent", font=("Inter", 30), 
                                   anchor="w", width=112, height=34)
         self.label_sound.place(x=1119, y=23)
-        self.file_label = CTkLabel(self, text="Ubicación Carpeta",fg_color="transparent",
+        self.file_label = CTkLabel(self, text="Folder Location",fg_color="transparent",
                                     font=("Inter", 15), text_color="#FFFFFF")
         self.file_label.place(relx=0.25, rely=0.2, anchor="w")
-        self.lat_label = CTkLabel(self, text="Latitud",fg_color="transparent",
+        self.lat_label = CTkLabel(self, text="Latitude",fg_color="transparent",
                                     font=("Inter", 15), text_color="#FFFFFF")
         self.lat_label.place(relx=0.05, rely=0.3, anchor="w")
-        self.lon_label = CTkLabel(self, text="Longitud",fg_color="transparent",
+        self.lon_label = CTkLabel(self, text="Longitude",fg_color="transparent",
                                     font=("Inter", 15), text_color="#FFFFFF")
         self.lon_label.place(relx=0.15, rely=0.3, anchor="w")
         self.result_label = CTkLabel(self, text="",fg_color="transparent",
@@ -60,11 +60,11 @@ class BirdnetWindow(CTkFrame):
 
 
     def btn_setup(self):
-        self.btn_file = CTkButton(self, text="Seleccionar Archivo",font=("Inter", 18), fg_color="#63C132", 
+        self.btn_file = CTkButton(self, text="Select File",font=("Inter", 18), fg_color="#63C132", 
                                    hover_color="#63C132", width=200, height=45,
                                    command=self.select_file)
         self.btn_file.place(relx=0.05, rely=0.2, anchor="w")
-        self.analyze_btn = CTkButton(self, text="Analizar",font=("Inter", 18), fg_color="#63C132", 
+        self.analyze_btn = CTkButton(self, text="Analyze",font=("Inter", 18), fg_color="#63C132", 
                                    hover_color="#63C132", width=100, height=35,
                                    command=self.analyze)
         self.analyze_btn.place(relx= 0.25, rely=0.35, anchor="w")
@@ -78,7 +78,7 @@ class BirdnetWindow(CTkFrame):
 
     def select_file(self):
         self.file = filedialog.askopenfile(filetypes=[("WAV Files", "*.wav"), ("MP3 files", "*.mp3"), ("All files", "*")],
-                                            title="Selecciona un archivo de audio")
+                                            title="Select an audio file")
         self.file_label.configure(text=self.file.name)
 
     def clean(self):
@@ -119,20 +119,20 @@ class BirdnetWindow(CTkFrame):
         recording.analyze()
         result = recording.detections
         if result == []:
-            self.result_label.configure(text="No se encontraron coincidencias")
+            self.result_label.configure(text="No matches found")
         else:
-            self.result_label.configure(text="Resultados")
+            self.result_label.configure(text="Results")
             for element in result:
-                name_label = CTkLabel(self.birds, text="Conocido como: "+str(element["common_name"]),fg_color="transparent",
+                name_label = CTkLabel(self.birds, text="Known as: "+str(element["common_name"]),fg_color="transparent",
                                             font=("Inter", 20), text_color="#FFFFFF")
                 name_label.pack(anchor="w", pady=1, padx=1)
-                scientific_name = CTkLabel(self.birds, text="Nombre cientifico: "+str(element["scientific_name"]),fg_color="transparent",
+                scientific_name = CTkLabel(self.birds, text="Scientific name: "+str(element["scientific_name"]),fg_color="transparent",
                                             font=("Inter", 15), text_color="#FFFFFF")
                 scientific_name.pack(anchor="w", pady=1, padx=1)
-                confidence = CTkLabel(self.birds, text="Nivel de confianza: "+str(element["confidence"]),fg_color="transparent",
+                confidence = CTkLabel(self.birds, text="Confidence Level: "+str(element["confidence"]),fg_color="transparent",
                                             font=("Inter", 15), text_color="#FFFFFF")
                 confidence.pack(anchor="w", pady=1, padx=1)
-                seconds = CTkLabel(self.birds, text="Entre los segundos "+ str(element["start_time"]) + " - " + str(element["end_time"]),fg_color="transparent",
+                seconds = CTkLabel(self.birds, text="Between seconds "+ str(element["start_time"]) + " - " + str(element["end_time"]),fg_color="transparent",
                                             font=("Inter", 15), text_color="#FFFFFF")
                 seconds.pack(anchor="w", pady=1, padx=1)
                 self.labels.append(name_label)

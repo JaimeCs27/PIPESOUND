@@ -50,12 +50,12 @@ class HeatMapWindow(CTkFrame):
                                   fg_color="transparent", font=("Inter", 30), 
                                   anchor="w", width=112, height=34)
         self.label_sound.place(x=1119, y=23)
-        self.file_label = CTkLabel(self, text="Archivo",fg_color="transparent",
+        self.file_label = CTkLabel(self, text="File",fg_color="transparent",
                                     font=("Inter", 15), text_color="#FFFFFF" )
         self.file_label.place(relx=0.25, rely=0.15, anchor="w")
 
     def setup_btn(self):
-        self.select_folder_btn = CTkButton(self, text="Seleccionar Carpeta",font=("Inter", 18), fg_color="#63C132", 
+        self.select_folder_btn = CTkButton(self, text="Choose Folder",font=("Inter", 18), fg_color="#63C132", 
                                    hover_color="#63C132", width=200, height=50,
                                    command=self.select_folder)
         self.select_folder_btn.place(relx=0.05, rely=0.15, anchor="w")
@@ -65,7 +65,7 @@ class HeatMapWindow(CTkFrame):
         self.btn_back.place(x=51, y=19)
 
     def select_folder(self):
-        folder = filedialog.askdirectory(title="Selecciona una carpeta con audios")
+        folder = filedialog.askdirectory(title="Select a folder with audio files")
         if folder == "":
             print("No folder selected")
             return
@@ -164,9 +164,9 @@ class HeatMapWindow(CTkFrame):
                 cbar_kws={'label': '% de archivos'},
                 vmin=0, vmax=100
             )
-            plt.title(f"Heatmap de frecuencias para carpeta {folder}")
-            plt.xlabel("Hora del día")
-            plt.ylabel("Frecuencia (kHz)")
+            plt.title(f"Heatmap of frequencies for folder: {folder}")
+            plt.xlabel("Hour of the day")
+            plt.ylabel("Frequency (kHz)")
             plt.xticks(rotation=0)
             plt.yticks(rotation=0)
             plt.tight_layout()

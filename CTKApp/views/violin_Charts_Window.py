@@ -47,7 +47,7 @@ class ViolinChartWindow(CTkFrame):
         self.file_label.place(relx=0.25, rely=0.15, anchor="w")
 
     def setup_btn(self):
-        self.select_folder_btn = CTkButton(self, text="Seleccionar Archivo",font=("Inter", 18), fg_color="#63C132", 
+        self.select_folder_btn = CTkButton(self, text="Choose File",font=("Inter", 18), fg_color="#63C132", 
                                    hover_color="#63C132", width=200, height=50,
                                    command=self.select_file)
         self.select_folder_btn.place(relx=0.05, rely=0.15, anchor="w")
@@ -58,7 +58,7 @@ class ViolinChartWindow(CTkFrame):
 
     def select_file(self):
         file = filedialog.askopenfilename(
-            title="Selecciona un archivo CSV",
+            title="Select a CSV file",
             filetypes=[("Archivos CSV", "*.csv")]
         )
         if file == "":
@@ -105,7 +105,7 @@ class ViolinChartWindow(CTkFrame):
 
         if self.plot_btn is None:
             self.plot_btn = CTkButton(
-                self, text="Graficar índice", font=("Inter", 18),
+                self, text="Plot index", font=("Inter", 18),
                 fg_color="#63C132", hover_color="#63C132",
                 width=200, height=50, command=self.plot_violin_chart
             )
@@ -130,7 +130,7 @@ class ViolinChartWindow(CTkFrame):
 
         plt.figure(figsize=(10, 6))
         sns.violinplot(x="site", y=real_index, data=df, inner="box", palette="Set2")
-        plt.title(f"Distribución del índice '{selected_display}' por site")
+        plt.title(f"Distribution of index '{selected_display}' by site")
         plt.xlabel("Site")
         plt.ylabel(selected_display)
         plt.tight_layout()
