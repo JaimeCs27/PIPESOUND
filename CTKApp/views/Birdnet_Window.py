@@ -14,7 +14,6 @@ class BirdnetWindow(CTkFrame):
         self.label_setup()
         self.btn_setup()
         self.entries_setup()
-        self.analyzer = Analyzer()
         self.file = ""
         self.labels = []
         self.results = []
@@ -98,6 +97,7 @@ class BirdnetWindow(CTkFrame):
             return
         lat = ""
         lon = ""
+        analyzer = Analyzer()
         try:
             lat = self.lat_txt.get()
             if (lat != ""):
@@ -114,9 +114,9 @@ class BirdnetWindow(CTkFrame):
         self.clean()
         recording = None
         if lat == "" and lon == "":
-            recording = Recording(self.analyzer, self.file.name, min_conf=0.25)
+            recording = Recording(analyzer, self.file.name, min_conf=0.25)
         else:
-            recording = Recording(self.analyzer,self.file.name, lat=lat, lon=lon, min_conf=0.2)
+            recording = Recording(analyzer,self.file.name, lat=lat, lon=lon, min_conf=0.2)
         if recording is None:
             print("Error while analyzing")
             return
