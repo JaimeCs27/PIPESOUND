@@ -35,10 +35,7 @@ class HeatMapWindow(CTkFrame):
     def _load_images(self):
         try:
             self.img_arrow = CTkImage(Image.open(path.join(path.dirname(__file__), "icons\Arrow.png")))
-            if self.img_arrow:
-                print("Imágenes cargadas correctamente")
-            else:
-                print("Alguna imagen no se cargó correctamente.")
+
         except Exception as e:
             print(f"Error loading images: {e}")
             self.img_arrow = None
@@ -70,7 +67,7 @@ class HeatMapWindow(CTkFrame):
     def select_folder(self):
         folder = filedialog.askdirectory(title="Selecciona una carpeta con audios")
         if folder == "":
-            print("No se seleccionó ninguna carpeta")
+            print("No folder selected")
             return
         self.file_label.configure(text=folder)
 
@@ -94,7 +91,7 @@ class HeatMapWindow(CTkFrame):
             dominant = np.median(pitches)
             return round(dominant, 2) 
         except Exception as e:
-            print(f"No se pudo calcular la frecuencia dominante de {file_path}: {e}")
+            print(f"It was not possible to calculate the dominant frequency of {file_path}: {e}")
             return None
 
     def extract_time_from_filename(self, filename):
@@ -107,7 +104,7 @@ class HeatMapWindow(CTkFrame):
             else:
                 return "N/A"
         except Exception as e:
-            print(f"No se pudo extraer la hora de {filename}: {e}")
+            print(f"Could not extract time from {filename}: {e}")
             return "N/A"
 
     def process_folder(self, folder):
@@ -124,10 +121,10 @@ class HeatMapWindow(CTkFrame):
                         deepest_folder = os.path.basename(root)
                         data.append([deepest_folder, file, sample_rate, file_date])
                     else:
-                        print(f"Saltando {file} por error.")
+                        print(f"Skipping {file} due to error.")
 
         if not data:
-            print("No se encontraron archivos de audio válidos.")
+            print("No valid audio files found.")
             return
 
         output_csv = os.path.join(folder, "audio_metadata.csv")
@@ -136,7 +133,7 @@ class HeatMapWindow(CTkFrame):
             writer.writerow(["folder", "filename", "sample_rate", "date"])
             writer.writerows(data)
 
-        print(f"CSV creado en: {output_csv}")
+        print(f"CSV created at: {output_csv}")
         self.generar_heatmaps(output_csv)
 
 

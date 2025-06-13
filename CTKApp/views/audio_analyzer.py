@@ -77,10 +77,6 @@ class AudioAnalyzer(CTkFrame):
             self.img_arrow = CTkImage(Image.open(path.join(path.dirname(__file__), "icons\Arrow.png")))
             self.img_run = CTkImage(Image.open(path.join(path.dirname(__file__), "icons\Run.png")))
             self.img_stop = CTkImage(Image.open(path.join(path.dirname(__file__), "icons\Stop.png")))
-            if self.img_arrow and self.img_run and self.img_stop:
-                print("Images loaded successfully")
-            else:
-                print("Some images failed to load.")
         except Exception as e:
             print(f"Error loading images: {e}")
             self.img_arrow = None
@@ -244,7 +240,7 @@ class AudioAnalyzer(CTkFrame):
         global STOP
         STOP = True
         self.stop_event.set()
-        print("Analysis stopped by user")
+        #print("Analysis stopped by user")
 
     def count_items(self, path_base):
         count = 0

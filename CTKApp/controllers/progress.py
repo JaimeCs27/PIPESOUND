@@ -56,14 +56,14 @@ class Process(mp.Process):
 
 def load_last_processed_data():
     """Revisa la carpeta temp_audio_files para revisar si hay archivos temporales."""
-    print(PROGRESS_PATH)
+    #print(PROGRESS_PATH)
     if path.exists(PROGRESS_PATH):
         temp_files = [f for f in os.listdir(PROGRESS_PATH) if f.endswith('.txt')]
         if len(temp_files) == 0:
-            print("No temporary files found to process.")
+            #print("No temporary files found to process.")
             return None
         json_data = [f for f in os.listdir(PROGRESS_PATH) if f.endswith('.json')]
-        print(json_data)
+        #print(json_data)
         with open(path.join(PROGRESS_PATH, json_data[0]), 'r') as f:
             data = json.load(f)
         return {
@@ -155,7 +155,7 @@ def combine_temp_files_to_csv(temp_path, csv_path):
     temp_files = [f for f in os.listdir(temp_path) if f.endswith('.txt')]
 
     if not temp_files:
-        print("No temporary files found to combine.")
+        #print("No temporary files found to combine.")
         return
 
     # Create headers if the CSV file does not exist

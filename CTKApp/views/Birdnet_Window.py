@@ -21,10 +21,6 @@ class BirdnetWindow(CTkFrame):
     def _load_images(self):
         try:
             self.img_arrow = CTkImage(Image.open(path.join(path.dirname(__file__), "icons\Arrow.png")))
-            if self.img_arrow:
-                print("Imágenes cargadas correctamente")
-            else:
-                print("Alguna imagen no se cargó correctamente.")
         except Exception as e:
             print(f"Error loading images: {e}")
             self.img_arrow = None

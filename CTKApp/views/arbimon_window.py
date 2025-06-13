@@ -31,10 +31,6 @@ class ArbimonWindow(CTkFrame):
     def _load_images(self):
         try:
             self.img_arrow = CTkImage(Image.open(path.join(path.dirname(__file__), "icons\Arrow.png")))
-            if self.img_arrow:
-                print("Imágenes cargadas correctamente")
-            else:
-                print("Alguna imagen no se cargó correctamente.")
         except Exception as e:
             print(f"Error loading images: {e}")
             self.img_arrow = None
@@ -122,7 +118,7 @@ class ArbimonWindow(CTkFrame):
             self.btn_logout.configure(state="disabled")
             self.log_in.configure(state="normal")
         else:
-            print("You are not Log in")
+            print("You are not logged in")
 
     def on_back(self):
         self.controller.show_frame("PipeSoundWelcome")
@@ -151,10 +147,10 @@ class ArbimonWindow(CTkFrame):
         module.Authenticate()
         try:
             module.Download_Project(sites, folder, project_name)
-            print("Descarga completada")
-            self.after(0, lambda: messagebox.showinfo("Éxito", f"Descarga del proyecto '{project_name}' completada."))
+            print("Download completed for project: " + project_name)
+            self.after(0, lambda: messagebox.showinfo("Success", f"Download of project '{project_name}' completed."))
         except Exception as e:
-            print("Error al descargar el proyecto " + project_name + ": " + str(e))
+            print("Error downloading project " + project_name + ": " + str(e))
             self.last_error = e
             self.after(0, lambda: self.show_retry_dialog(self.last_error, sites, folder, project_name))
         finally:
@@ -198,7 +194,7 @@ class ArbimonWindow(CTkFrame):
                             elif os.path.isdir(file_path):
                                 shutil.rmtree(file_path)  # Borrar directorio
                         except Exception as e:
-                            print(f"No se pudo eliminar {file_path}: {e}")
+                            print(f"Error deleting {file_path}: {e}")
 
             # Luego borrar el directorio principal (si existe)
             if os.path.exists(target_path):
@@ -210,12 +206,12 @@ class ArbimonWindow(CTkFrame):
                     time.sleep(1)  # Esperar 1 segundo
                     shutil.rmtree(target_path, ignore_errors=True)
 
-            messagebox.showinfo("Operación cancelada", 
-                            "Se han eliminado los archivos parcialmente descargados.")
+            messagebox.showinfo("Operation cancelled", 
+                            "Partially downloaded files have been deleted.")
             
         except Exception as e:
-            messagebox.showerror("Error de limpieza", 
-                            f"No se pudieron eliminar todos los archivos:\n{str(e)}")
+            messagebox.showerror("Error cleaning up", 
+                            f"Could not delete all files:\n{str(e)}")
 
     def hide_progress_bar(self):
         self.progress_bar.stop()
@@ -223,14 +219,14 @@ class ArbimonWindow(CTkFrame):
 
     def start_download(self):
         if self.folder == "":
-            print("Carpeta para descarga no seleccionada")
+            print("Download folder not selected")
             return
-        if self.project_list.get() == "Selección de proyectos":
-            print("Debes seleccionar un proyecto")
+        if self.project_list.get() == "Select a project":
+            print("You must select a project")
             return
         sites = self.get_selected_sites()
         if sites == []:
-            print("No seleccionaste ningún Site")
+            print("No sites selected")
             return
 
         project_name = self.project_list.get()
@@ -273,7 +269,7 @@ class ArbimonWindow(CTkFrame):
 
     def clean_checkboxes(self):
         for site, checkbox in self.site_checkboxes.items():
-            print("destruyendo widget")
+            #print("destruyendo widget")
             checkbox.destroy()
         self.sites_frame.update()  # Forzar refresco
         self.site_checkboxes.clear()
