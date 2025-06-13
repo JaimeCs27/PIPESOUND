@@ -11,6 +11,7 @@ import librosa
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from .acoustic_index import *
+import multiprocessing as mp
 
 
 PROGRESS_PATH = path.join(path.dirname(__file__), '..', 'views', 'temp_audio_files')
@@ -270,47 +271,47 @@ def analize(base_dir, analizer, indices, csv_path, temp_path, resume_from=None, 
     project_name = path.basename(base_dir)
 
     # This code is parallel
+
     processes = []
-    for i, (full_path, rel_path) in enumerate(all_wavs):
-        if stop_event.is_set():                 # ← NUEVO
-            print("Analysis stopped aaaaaaaaaa.")
-            break  
-        process = Process(i, full_path, rel_path, analizer, indices, temp_path, project_name, path.basename(path.dirname(full_path)), stop_event)
-        process.counter = counter
-        process.lock = lock
-        process.daemon = True
-        processes.append(process)
-        process.start()
+    max_processes = max(1, mp.cpu_count() - 1)  # Limit based on available cores
+    i = 0
 
-    # for process in processes:
-    #     process.join()
-    #     if stop_event and stop_event.is_set():
-    #         print("Analysis stopped.")
-    #         for p in processes:
-    #             if p.is_alive():
-    #                 p.terminate()
-    #         break
+    while i < len(all_wavs) or any(p.is_alive() for p in processes):
+        # Remove finished processes from the list
+        processes = [p for p in processes if p.is_alive()]
 
-    while True:
-        if stop_event.is_set():
-            print("Analysis stopped before completion.")
-            kill_all(processes, grace=0.5)
-            reset_progress()
-            return
-        if not any(p.is_alive() for p in processes):
-            break
-        time.sleep(0.2)
+        # Spawn new processes if there is room
+        while len(processes) < max_processes and i < len(all_wavs):
+            if stop_event and stop_event.is_set():
+                print("Analysis stopped during process spawning.")
+                kill_all(processes, grace=0.5)
+                reset_progress()
+                return
 
+            full_path, rel_path = all_wavs[i]
+            process = Process(
+                i, full_path, rel_path, analizer, indices, temp_path,
+                project_name, path.basename(path.dirname(full_path)), stop_event
+            )
+            process.counter = counter
+            process.lock = lock
+            process.daemon = True
+            process.start()
+            processes.append(process)
+            i += 1
+
+        time.sleep(0.1)  # Prevent busy waiting
+
+    # After all processes are done or stop_event triggered
     if stop_event and stop_event.is_set():
-        print("Analysis stopped before completion. 2")
+        print("Analysis stopped before completion.")
         reset_progress()
         return
 
-
     print("All parallel processes have finished.")
 
-    # Combine temp files into a single CSV file
+    # Combine temporary result files into one CSV
     combine_temp_files_to_csv(temp_path, csv_path)
 
-    # Delete temporary files
+    # Clean up temporary files
     reset_progress()
