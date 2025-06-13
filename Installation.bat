@@ -74,7 +74,7 @@ echo ⚠️ pip no está instalado. Intentando instalar...
 if exist "%PIP_PATH%" (
     echo pip fue instalado exitosamente.
     "%PIP_PATH%" --version
-    py -3.10 -m pip install customtkinter pillow scipy numpy pyyaml soundfile matplotlib seaborn librosa psutil requests_toolbelt httplib2 birdnetlib
+    py -3.10 -m pip install customtkinter pillow scipy numpy pyyaml soundfile matplotlib seaborn librosa psutil requests_toolbelt httplib2 birdnetlib birdnet
 ) else (
     echo pip no se pudo instalar.
 )
