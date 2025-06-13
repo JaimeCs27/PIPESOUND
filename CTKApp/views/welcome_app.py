@@ -26,13 +26,13 @@ class PipeSoundWelcome(CTkFrame):
         self.label_sound.place(x=1119, y=23)
         
         # Título Bienvenida
-        self.label_bienvenida = CTkLabel(self, text="Bienvenido", text_color="#FFFFFF", 
+        self.label_bienvenida = CTkLabel(self, text="Welcome", text_color="#FFFFFF", 
                                        fg_color="transparent", font=("Inter", 32))
         self.label_bienvenida.place(relx=0.5, rely=0.2, anchor="center")
         
         # Subtítulo
         self.label_subtitulo = CTkLabel(self, 
-                                      text="Para comenzar por favor seleccione la opción de su preferencia", 
+                                      text="To get started, please select your preferred option", 
                                       text_color="#FFFFFF", fg_color="transparent", 
                                       font=("Inter", 20))
         self.label_subtitulo.place(relx=0.5, rely=0.3, anchor="center")
@@ -43,7 +43,7 @@ class PipeSoundWelcome(CTkFrame):
         #self.label_arbimon.place(relx=0.5, rely=0.4, anchor="center")
         
         # Botón ARBIMOn
-        self.btn_arbimon = CTkButton(self, text="Descargar desde ARBIMON", 
+        self.btn_arbimon = CTkButton(self, text="Download from ARBIMON", 
                                     font=("Inter", 18), fg_color="#63C132", 
                                     hover_color="#63C132", width=300, height=50 ,
                                     command=self.seleccionar_proyecto_arbimon
@@ -51,7 +51,7 @@ class PipeSoundWelcome(CTkFrame):
         self.btn_arbimon.place(relx=0.5, rely=0.4, anchor="center")
 
         # Botón Birdnet
-        self.btn_birdnet = CTkButton(self, text="Modulo Birdnet", 
+        self.btn_birdnet = CTkButton(self, text="Birdnet Module", 
                                     font=("Inter", 18), fg_color="#63C132", 
                                     hover_color="#63C132", width=300, height=50 ,
                                     command=self.birdnet_window
@@ -60,21 +60,21 @@ class PipeSoundWelcome(CTkFrame):
 
 
         # Botón Carpeta Local
-        self.btn_carpeta = CTkButton(self, text="Subir de carpeta local", 
+        self.btn_carpeta = CTkButton(self, text="Upload from local folder", 
                                    font=("Inter", 18), fg_color="#63C132", 
                                    hover_color="#63C132", width=300, height=50,
                                    command=self.seleccionar_carpeta)
         self.btn_carpeta.place(relx=0.5, rely=0.5, anchor="center")
 
         # Botón Gráfico violin
-        self.btn_carpeta = CTkButton(self, text="Analizar CSV", 
+        self.btn_carpeta = CTkButton(self, text="Analyze CSV", 
                                    font=("Inter", 18), fg_color="#63C132", 
                                    hover_color="#63C132", width=300, height=50,
                                    command=self.csv_window)
         self.btn_carpeta.place(relx=0.5, rely=0.6, anchor="center")
 
         # Botón Gráfica de Calor
-        self.btn_carpeta = CTkButton(self, text="Gráfica de Calor", 
+        self.btn_carpeta = CTkButton(self, text="Heat Map", 
                                    font=("Inter", 18), fg_color="#63C132", 
                                    hover_color="#63C132", width=300, height=50,
                                    command=self.heat_window)
@@ -82,9 +82,7 @@ class PipeSoundWelcome(CTkFrame):
 
         self.last_file = load_last_processed_data()
         if self.last_file:
-            self.reanudarProgresoPopUp(f"El programa fue interrumpido repentinamente, se encontró progreso previo. ¿Desea continuar desde allí?")
-        
-        
+            self.reanudarProgresoPopUp(f"The program was unexpectedly interrupted, previous progress was found. Do you want to continue from there?")
         # Créditos
         #self.label_creditos = CTkLabel(self, text="En alianza con:", 
         #                              text_color="#FFFFFF", fg_color="transparent", 

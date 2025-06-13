@@ -41,7 +41,7 @@ class ArbimonWindow(CTkFrame):
     def selection_setup(self):
         project_names = ["Selección de proyectos"] + [item['name'] for item in self.projects]
         self.project_list = CTkComboBox(self, width=250, values=project_names, command=self.selected_project, font=("Inter", 18), dropdown_font=("Inter", 15))
-        self.project_list.set("Selección de proyectos")
+        self.project_list.set("Select a project")
         self.project_list.place(relx= 0.05, rely=0.29, anchor='w')
 
         # En __init__
@@ -72,15 +72,15 @@ class ArbimonWindow(CTkFrame):
                                   anchor="w", width=112, height=34)
         self.label_sound.place(x=1119, y=23)
 
-        self.folder_label = CTkLabel(self, text="Ubicación Carpeta",fg_color="transparent",
+        self.folder_label = CTkLabel(self, text="Folder Location",fg_color="transparent",
                                     font=("Inter", 15), text_color="#FFFFFF" )
         self.folder_label.place(relx=0.25, rely=0.2, anchor="w")
-        self.sites_label = CTkLabel(self, text="Lista de Sites",fg_color="transparent",
+        self.sites_label = CTkLabel(self, text="Site List",fg_color="transparent",
                                     font=("Inter", 18), text_color="#FFFFFF" )
         self.sites_label.place(relx=0.05, rely=0.35, anchor="w")
 
     def btn_setup(self):
-        self.start_download_btn = CTkButton(self, text="Empezar Descarga", 
+        self.start_download_btn = CTkButton(self, text="Start Download", 
                                    font=("Inter", 18), fg_color="#63C132", 
                                    hover_color="#63C132", width=300, height=50,
                                    command=self.start_download)
@@ -89,7 +89,7 @@ class ArbimonWindow(CTkFrame):
                                 hover_color="#272B2B", command=self.on_back,
                                 width=33, height=33, image=self.img_arrow)
         self.back_btn.place(relx=0.02, rely=0.05, anchor="w")
-        self.select_folder_btn = CTkButton(self, text="Seleccionar Carpeta",font=("Inter", 18), fg_color="#63C132", 
+        self.select_folder_btn = CTkButton(self, text="Select Folder",font=("Inter", 18), fg_color="#63C132", 
                                    hover_color="#63C132", width=200, height=50,
                                    command=self.select_folder)
         self.select_folder_btn.place(relx=0.05, rely=0.2, anchor="w")
@@ -160,10 +160,10 @@ class ArbimonWindow(CTkFrame):
 
     def show_retry_dialog(self, error, sites, folder, project_name):
         retry = messagebox.askretrycancel(
-            "Error en la descarga",
-            f"Ocurrió un error durante la descarga:\n\n{str(error)}\n\n"
-            "¿Desea reintentar desde el último archivo descargado?\n"
-            "(Cancelar borrará los archivos parcialmente descargados)",
+            "Error during download",
+            f"An error occurred during the download:\n\n{str(error)}\n\n"
+            "Do you want to retry from the last downloaded file?\n"
+            "(Cancel will delete partially downloaded files)",
             icon='error'
         )
         
