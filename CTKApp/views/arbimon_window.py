@@ -265,10 +265,6 @@ class ArbimonWindow(CTkFrame):
             print("Error while loading the sites of " + name + ": " + str(e))
         self.update_sites()
 
-
-    def on_back(self):
-        self.controller.show_frame("PipeSoundWelcome")
-
     def clean_checkboxes(self):
         for site, checkbox in self.site_checkboxes.items():
             #print("destruyendo widget")
