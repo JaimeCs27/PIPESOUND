@@ -41,8 +41,8 @@ def __save_file(url, local_path, token, stop_flag):
         print(f"Timeout downloading {url}. Ignoring and continue.")
     except Exception as e:
         stop_flag.set()
-        print(e)
-        raise Exception(f"Network error when accessing {url}: {e}")
+        if str(e) == "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))":
+            raise Exception(f"Network error when accessing {url}: {e}")
 
 
 def __local_audio_file_path(path, audio_name, audio_extension):
@@ -93,7 +93,8 @@ def __download_segment(token, save_path, stream_id, start_str, file_ext, stop_fl
         print(str(e))
         if str(e) == "The content for this response was already consumed":
             return
-        raise Exception(f"Network error while downloading segment {start_str}: {e}") from e
+        if str(e) == "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))":
+            raise Exception(f"Network error while downloading segment {start_str}: {e}") from e
     return local_path
 
 
@@ -307,3 +308,4 @@ def download_segments(token,
                         os.remove(os.path.normpath(os.path.join(temp_dir, f)))
                     except Exception as e:
                         print(f"Warning: Could not remove temp file {f}: {e}")
+            os.removedirs(temp_dir)

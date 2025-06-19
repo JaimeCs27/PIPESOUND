@@ -24,6 +24,7 @@ class HeatMapWindow(CTkFrame):
         self._load_images()
         self.setup_labels()
         self.setup_btn()
+        self.loading_setup()
         self.csv = None
         self.index_buttons = []
         self.index_columns = []
@@ -31,6 +32,11 @@ class HeatMapWindow(CTkFrame):
         self.index_menu = None
         self.plot_btn = None
 
+    def hide_progress_bar(self):
+        self.progress_bar.stop()
+        self.progress_bar.place_forget()  # Oculta la barra completamente
+
+        
 
     def _load_images(self):
         try:
@@ -53,6 +59,13 @@ class HeatMapWindow(CTkFrame):
         self.file_label = CTkLabel(self, text="File",fg_color="transparent",
                                     font=("Inter", 15), text_color="#FFFFFF" )
         self.file_label.place(relx=0.25, rely=0.15, anchor="w")
+
+    def loading_setup(self):
+        self.progress_bar = CTkProgressBar(self, width=300)
+        
+        self.progress_bar.set(0)
+        self.progress_bar.configure(mode="indeterminate")
+        self.progress_bar.stop()
 
     def setup_btn(self):
         self.select_folder_btn = CTkButton(self, text="Choose Folder",font=("Inter", 18), fg_color="#63C132", 
@@ -110,7 +123,9 @@ class HeatMapWindow(CTkFrame):
     def process_folder(self, folder):
         audio_extensions = (".flac", ".wav", ".mp3")
         data = []
-
+        self.progress_bar.place(relx=0.05, rely=0.3, anchor="w")
+        self.progress_bar.start()
+        self.progress_bar.update()
         for root, dirs, files in os.walk(folder):
             for file in files:
                 if file.lower().endswith(audio_extensions):
@@ -134,7 +149,9 @@ class HeatMapWindow(CTkFrame):
             writer.writerows(data)
 
         print(f"CSV created at: {output_csv}")
+        self.hide_progress_bar()
         self.generar_heatmaps(output_csv)
+        
 
 
     def generar_heatmaps(self, csv_path):
@@ -166,7 +183,7 @@ class HeatMapWindow(CTkFrame):
             )
             plt.title(f"Heatmap of frequencies for folder: {folder}")
             plt.xlabel("Hour of the day")
-            plt.ylabel("Frequency (kHz)")
+            plt.ylabel("Frequency (Hz)")
             plt.xticks(rotation=0)
             plt.yticks(rotation=0)
             plt.tight_layout()

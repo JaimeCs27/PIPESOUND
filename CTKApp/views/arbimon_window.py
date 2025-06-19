@@ -20,8 +20,13 @@ class ArbimonWindow(CTkFrame):
         self.sites = []
         self.folder = ""
 
-        if os.path.exists(".rfcx_credentials"):        
-            self.load_projects()
+        if os.path.exists(".rfcx_credentials"):
+            try:
+                self.load_projects()
+            except Exception as e:
+                print(str(e))
+                print("Network Error: Can't Loggin To Arbimon")
+                        
         
         self.selection_setup()    
         self.loading_setup()
@@ -56,10 +61,15 @@ class ArbimonWindow(CTkFrame):
         self.progress_bar.stop()
 
     def load_up(self):
-        self.btn_logout.configure(state="normal")
-        self.log_in.configure(state="disabled")
-        self.load_projects()
-        self.selection_setup()
+        try:
+            self.load_projects()
+            self.selection_setup()
+            self.btn_logout.configure(state="normal")
+            self.log_in.configure(state="disabled")
+        except Exception as e:
+            print(str(e))
+            print("Network Error: Can't Loggin To Arbimon")
+
 
     def label_setup(self):
         self.label_pipe = CTkLabel(self, text="Pipe", text_color="#FFFFFF", 
@@ -162,8 +172,7 @@ class ArbimonWindow(CTkFrame):
         retry = messagebox.askretrycancel(
             "Error during download",
             f"An error occurred during the download:\n\n{str(error)}\n\n"
-            "Do you want to retry from the last downloaded file?\n"
-            "(Cancel will delete partially downloaded files)",
+            "Do you want to retry from the last downloaded file?\n",
             icon='error'
         )
         
@@ -178,7 +187,8 @@ class ArbimonWindow(CTkFrame):
             ).start()
         else:
             # Clean up partial downloads
-            self.cleanup_partial_downloads(folder, project_name)
+            # self.cleanup_partial_downloads(folder, project_name)
+            pass
 
     def cleanup_partial_downloads(self, folder, project_name):
         try:
