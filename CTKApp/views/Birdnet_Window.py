@@ -5,6 +5,8 @@ from PIL import Image
 import sys
 from os import path
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
+import csv
+
 
 class BirdnetWindow(CTkFrame):
     def __init__(self, parent, controller):
@@ -72,6 +74,10 @@ class BirdnetWindow(CTkFrame):
                                 hover_color="#272B2B", command=self.on_back,
                                 width=33, height=33, image=self.img_arrow)
         self.back_btn.place(relx=0.02, rely=0.05, anchor="w")
+        self.save_csv = CTkButton(self, text="Save Result",font=("Inter", 18), fg_color="#63C132", 
+                                   hover_color="#63C132", width=100, height=35,
+                                   command=self.create_csv)
+        self.save_csv.place(relx= 0.35, rely=0.35, anchor="w")
 
     def on_back(self):
         self.controller.show_frame("PipeSoundWelcome")
@@ -80,6 +86,19 @@ class BirdnetWindow(CTkFrame):
         self.file = filedialog.askopenfile(filetypes=[("WAV Files", "*.wav"), ("MP3 files", "*.mp3"), ("All files", "*")],
                                             title="Select an audio file")
         self.file_label.configure(text=self.file.name)
+
+    def create_csv(self):
+        if len(self.result) <= 0:
+            print("Not result given")
+            return
+        output_file = "Birdnet_result.csv"
+        
+        with open(output_file, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.DictWriter(file, fieldnames=self.result[0].keys())
+            writer.writeheader()
+            writer.writerows(self.result)
+
+        print(f"File save in {output_file}")
 
     def clean(self):
         for label in self.labels:
@@ -117,9 +136,11 @@ class BirdnetWindow(CTkFrame):
             print("Error while analyzing")
             return
         recording.analyze()
-        result = recording.detections
+        self.result = recording.detections
+        result = self.result
         if result == []:
             self.result_label.configure(text="No matches found")
+            return
         else:
             self.result_label.configure(text="Results")
             for element in result:
@@ -139,7 +160,7 @@ class BirdnetWindow(CTkFrame):
                 self.labels.append(scientific_name)
                 self.labels.append(confidence)
                 self.labels.append(seconds)
-            
+        
 
         
 

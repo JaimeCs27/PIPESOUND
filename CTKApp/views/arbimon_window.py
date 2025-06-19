@@ -85,8 +85,7 @@ class ArbimonWindow(CTkFrame):
         self.folder_label = CTkLabel(self, text="Folder Location",fg_color="transparent",
                                     font=("Inter", 15), text_color="#FFFFFF" )
         self.folder_label.place(relx=0.25, rely=0.2, anchor="w")
-        self.sites_label = CTkLabel(self, text="Site List",fg_color="transparent",
-                                    font=("Inter", 18), text_color="#FFFFFF" )
+        self.sites_label = CTkLabel(self, text="Site List", )
         self.sites_label.place(relx=0.05, rely=0.35, anchor="w")
 
     def btn_setup(self):

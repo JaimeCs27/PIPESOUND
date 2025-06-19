@@ -80,6 +80,12 @@ class PipeSoundWelcome(CTkFrame):
                                    command=self.heat_window)
         self.btn_carpeta.place(relx=0.5, rely=0.7, anchor="center")
 
+        self.creditos = CTkButton(self, text="Credits", 
+                                   font=("Inter", 18), fg_color="#63C132", 
+                                   hover_color="#63C132", width=100, height=50,
+                                   command=self.creditos_window)
+        self.creditos.place(relx=0.1, rely=0.9, anchor="w")
+
         self.last_file = load_last_processed_data()
         if self.last_file:
             self.reanudarProgresoPopUp(f"The program was unexpectedly interrupted, previous progress was found. Do you want to continue from there?")
@@ -88,7 +94,9 @@ class PipeSoundWelcome(CTkFrame):
         #                              text_color="#FFFFFF", fg_color="transparent", 
         #                              font=("Inter", 16))
         #self.label_creditos.place(relx=0.5, rely=0.85, anchor="center")
-        
+    
+    def creditos_window(self):
+        self.controller.show_frame("Creditos")
 
     def birdnet_window(self):
         self.controller.show_frame("BirdnetWindow")
