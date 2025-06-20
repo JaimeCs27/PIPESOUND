@@ -23,7 +23,7 @@ class Creditos(CTkFrame):
                                   fg_color="transparent", font=("Inter", 45), 
                                   anchor="w", height=34)
         self.label_sound.place(relx=0.485, rely=0.2, anchor="w")
-        label = CTkLabel(self, text="Desarrollado por:\n\nJaime Cabezas Segura jaimecabezassegura@gmail.com\nSebastian Lopez Villavicencio Selopez@estudiantec.cr\nJose Ramirez Castillo jaramirez@estudiantec.cr\nNatasha Calderón Rojas nacalderon@estudiantec.cr\n\nEn alianza con:\n\nUNED\nLaboratorio de Investigación e Innovación Tecnológica",
+        label = CTkLabel(self, text="Developed by:\n\nJaime Cabezas Segura jaimecabezassegura@gmail.com\nSebastian Lopez Villavicencio Selopez@estudiantec.cr\nJose Ramirez Castillo jaramirez@estudiantec.cr\nNatasha Calderón Rojas nacalderon@estudiantec.cr\n\nTogether with:\n\nUNED\nLaboratorio de Investigación e Innovación Tecnológica",
                          fg_color="transparent", font=("Inter", 25), text_color="#FFFFFF")
         label.place(relx=0.5, rely=0.5, anchor="center")
 
