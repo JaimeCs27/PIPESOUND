@@ -9,6 +9,7 @@ class Creditos(CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
+        self.configure(fg_color="#272B2B")
         self._load_images()
         self.label_setup()
         self.btn_setup()

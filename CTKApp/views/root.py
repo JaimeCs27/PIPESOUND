@@ -19,7 +19,7 @@ class Root(CTk):
         y = (self.winfo_screenheight() // 2) - (self.app_height // 2)
         self.geometry(f"{self.app_width}x{self.app_height}+{x}+{y}")
         self.configure(fg_color="#272B2B")
-
+        
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
@@ -33,6 +33,7 @@ class Root(CTk):
 
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
+        container.configure(fg_color="#272B2B")
 
         self.frames = {}
         for F in (ArbimonWindow, PipeSoundWelcome, AudioAnalyzer, ViolinChartWindow, HeatMapWindow, BirdnetWindow, Creditos):

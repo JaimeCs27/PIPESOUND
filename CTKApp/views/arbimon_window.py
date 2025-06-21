@@ -11,6 +11,7 @@ from controllers.arbimonModule import ArbimonModule
 class ArbimonWindow(CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
+        self.configure(fg_color="#272B2B")
         self._load_images()
         self.btn_setup()
         self.label_setup()
@@ -85,7 +86,8 @@ class ArbimonWindow(CTkFrame):
         self.folder_label = CTkLabel(self, text="Folder Location",fg_color="transparent",
                                     font=("Inter", 15), text_color="#FFFFFF" )
         self.folder_label.place(relx=0.25, rely=0.2, anchor="w")
-        self.sites_label = CTkLabel(self, text="Site List", )
+        self.sites_label = CTkLabel(self, text="Site List", fg_color="transparent",
+                                    font=("Inter", 15), text_color="#FFFFFF" )
         self.sites_label.place(relx=0.05, rely=0.35, anchor="w")
 
     def btn_setup(self):
@@ -286,7 +288,7 @@ class ArbimonWindow(CTkFrame):
 
         # Crear un checkbox por cada sitio
         for site in self.sites:
-            checkbox = CTkCheckBox(self.sites_frame, text=site["name"])
+            checkbox = CTkCheckBox(self.sites_frame, text=site["name"], text_color="#FFFFFF")
             checkbox.pack(anchor="w", pady=2)
             checkbox.select()  # Esto los marca por defecto
             self.site_checkboxes[site["id"]] = checkbox
