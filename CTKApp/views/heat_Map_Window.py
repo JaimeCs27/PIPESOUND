@@ -173,9 +173,10 @@ class HeatMapWindow(CTkFrame):
                 fill_value=0
             )
             heatmap_percent = heatmap_data.div(heatmap_data.sum(axis=1), axis=0) * 100
+            heatmap_percent = heatmap_percent.sort_index(ascending=False)
 
             plt.figure(figsize=(12, 6))
-            ax = sns.heatmap(
+            sns.heatmap(
                 heatmap_percent,
                 cmap="hot",
                 cbar_kws={'label': '% de archivos'},
@@ -186,14 +187,7 @@ class HeatMapWindow(CTkFrame):
             plt.xlabel("Hour of the day")
             plt.ylabel("Frequency (Hz)")
             plt.xticks(rotation=0)
-
-            # Configurar ticks del eje Y de 10 en 10
-            freq_ticks = range(int(heatmap_percent.index.min()), int(heatmap_percent.index.max()) + 1, 10)
-            ax.set_yticks(freq_ticks)
-            ax.set_yticklabels(freq_ticks, rotation=0)
-
-            # Invertir eje Y (para que frecuencias bajas estén más cerca del eje X)
-            ax.invert_yaxis()
+            plt.yticks(rotation=0)
 
             plt.tight_layout()
             plt.savefig(f"{output_dir}/{folder}_heatmap.png")
