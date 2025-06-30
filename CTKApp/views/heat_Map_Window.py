@@ -178,7 +178,7 @@ class HeatMapWindow(CTkFrame):
             ax = sns.heatmap(
                 heatmap_percent,
                 cmap="hot",
-                cbar_kws={'label': '% de archivos'},
+                cbar_kws={'label': '% of frecuencies in files'},
                 vmin=0, vmax=100
             )
 
